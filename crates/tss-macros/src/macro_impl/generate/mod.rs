@@ -55,15 +55,14 @@ fn build_variant_map(node_types: &[NodeType]) -> Vec<(String, String)> {
             .collect();
         name = name.to_upper_camel_case();
         name = match syn::parse_str::<syn::Ident>(&name) {
-            Ok(_) => name,
+            Ok(_) =>  if !node_type.named {
+            name.push_str("Token");
+            name
+            } else {name},
             Err(_) => format!("{}Token", name),
         };
         // Add suffix for unnamed nodes to distinguish them
-        if !node_type.named {
-            name.push_str("Token");
-            // continue;
-        }
-
+        
         if original.chars().next() == Some('_') {
             name = format!("_{name}")
         }

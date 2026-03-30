@@ -207,7 +207,7 @@ enum RustNodes {
     RightSquareBracketToken,
     CircumflexAccentToken,
     CircumflexAccentequalsSignToken,
-    _TokenToken,
+    _Token,
     AsToken,
     AsyncToken,
     AwaitToken,
@@ -884,7 +884,7 @@ impl std::str::FromStr for RustNodes {
             "^=" => {
                 return std::result::Result::Ok(RustNodes::CircumflexAccentequalsSignToken)
             }
-            "_" => { return std::result::Result::Ok(RustNodes::_TokenToken) }
+            "_" => { return std::result::Result::Ok(RustNodes::_Token) }
             "as" => { return std::result::Result::Ok(RustNodes::AsToken) }
             "async" => {
                 return std::result::Result::Ok(RustNodes::AsyncToken)
@@ -1512,7 +1512,7 @@ impl std::fmt::Display for RustNodes {
             Self::CircumflexAccentequalsSignToken => {
                 f.write_fmt(format_args!("^="))
             }
-            Self::_TokenToken => { f.write_fmt(format_args!("_")) }
+            Self::_Token => { f.write_fmt(format_args!("_")) }
             Self::AsToken => { f.write_fmt(format_args!("as")) }
             Self::AsyncToken => { f.write_fmt(format_args!("async")) }
             Self::AwaitToken => { f.write_fmt(format_args!("await")) }
