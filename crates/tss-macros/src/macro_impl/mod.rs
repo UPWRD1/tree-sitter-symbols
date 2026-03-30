@@ -1,12 +1,17 @@
 // Modified from https://medium.com/@alfred.weirich/the-rust-macro-system-part-1-an-introduction-to-attribute-macros-73c963fd63ea
 extern crate proc_macro;
+use std::fmt::format;
+
 use proc_macro2::Span;
 use quote::{format_ident, quote};
+use syn::{token, Generics};
 
 mod generate;
 mod schema;
 
-pub fn generate_nodes(
+use crate::macro_impl::generate::DerivedType;
+
+pub fn generate_nodes_impl(
     crate_name: String,
     input: proc_macro2::TokenStream,
 ) -> proc_macro2::TokenStream {
@@ -21,12 +26,13 @@ pub fn generate_nodes(
     // Retrieve the name of the enum
     let mut new_enum: syn::ItemEnum = the_enum.clone();
 
-    let variant_map: Vec<(String, String)>;
+    let analysis: DerivedType;
+    let mut accum: proc_macro2::TokenStream = quote! {};
     // Check if the enum has ANY variants
     if new_enum.variants.is_empty() {
-        match generate::generate(&crate_name) {
+        match generate::analyze(&crate_name) {
             Ok(vm) => {
-                variant_map = vm;
+                analysis = vm;
             }
             Err(e) => {
                 let e = e.to_string();
@@ -36,11 +42,48 @@ pub fn generate_nodes(
                 };
             }
         }
-        for (_, variant_name_string) in &variant_map {
+        for variant in &analysis.variants {
+            let variant_ident = syn::Ident::new(&variant.variant_name, Span::mixed_site());
+            let fields = if let Some(subtypes) = &variant.subtypes {
+                let mut new_type = syn::ItemEnum {
+                    attrs: vec![],
+                    vis: syn::Visibility::Public(syn::Token![pub](Span::mixed_site())),
+                    enum_token: syn::Token![enum](Span::mixed_site()),
+                    ident: variant_ident.clone(),
+                    generics: Generics {
+                        lt_token: None,
+                        params: syn::punctuated::Punctuated::new(),
+                        gt_token: None,
+                        where_clause: None,
+                    },
+                    brace_token: token::Brace(Span::mixed_site()),
+                    variants: syn::punctuated::Punctuated::new(),
+                };
+                for subtype in &subtypes.variants {
+                    new_type.variants.push(syn::Variant {
+                        ident: syn::Ident::new(&subtype.variant_name, Span::mixed_site()),
+                        attrs: vec![],
+                        fields: syn::Fields::Unit,
+                        discriminant: None, //TODO Consider investigating if this can be the tree-sitter node ID
+                    })
+                }
+                let subtype_enum = quote! {
+                    #[derive(Debug, Clone)]
+                    #new_type
+                };
+                accum = quote! {
+                    #subtype_enum
+
+                    #accum
+                };
+                syn::Fields::Unnamed(syn::parse_quote! {(#variant_ident)})
+            } else {
+                syn::Fields::Unit
+            };
             new_enum.variants.push(syn::Variant {
-                ident: syn::Ident::new(variant_name_string, Span::mixed_site()),
+                ident: syn::Ident::new(&variant.variant_name, Span::mixed_site()),
                 attrs: vec![],
-                fields: syn::Fields::Unit,
+                fields,
                 discriminant: None, //TODO Consider investigating if this can be the tree-sitter node ID
             });
         }
@@ -51,17 +94,13 @@ pub fn generate_nodes(
     }
 
     // Generate conversion functions
-    let from_string = generate_from_string(&variant_map, &new_enum);
-    let display = generate_display(&variant_map, &new_enum);
+    let from_string = generate_from_string(&analysis, &new_enum);
+    let display = generate_display(&analysis, &new_enum);
 
-    // Collect and process any errors encountered during field processing
-    // let all_errors: Vec<proc_macro2::TokenStream> = [getter_errors, setter_errors].concat();
-    // if !all_errors.is_empty() {
-    //     return quote! { #(#all_errors)* };
-    // }
-
-    // Step 6: Generate the modified struct and any additional trait implementations
+    // Generate the final enum and conversion functions
     quote! {
+        #accum
+
         #new_enum
 
         #from_string
@@ -71,23 +110,36 @@ pub fn generate_nodes(
 }
 
 fn generate_from_string(
-    variant_map: &[(String, String)],
+    analysis: &DerivedType,
     new_enum: &syn::ItemEnum,
 ) -> proc_macro2::TokenStream {
+    let variants = &analysis.variants;
     let enum_name = &new_enum.ident;
     let mut the_match: syn::ExprMatch = syn::parse_quote! {
         match s {
 
         }
     };
-    for (string_rep, variant) in variant_map {
-        let variant_ident = format_ident!("{}", variant);
-        let arm: syn::Arm = syn::parse_quote! {
-            #string_rep => {return std::result::Result::Ok(#enum_name::#variant_ident)},
+    for variant in variants {
+        if let Some(subtypes) = &variant.subtypes {
+            let variant_ident = format_ident!("{}", variant.variant_name);
+            for sub in &subtypes.variants {
+                let string_rep = &sub.original_name;
+                let subtype_ident = format_ident!("{}", sub.variant_name);
+                let arm: syn::Arm = syn::parse_quote! {
+                    #string_rep => {return std::result::Result::Ok(#enum_name::#variant_ident(#variant_ident::#subtype_ident))},
 
-        };
-
-        the_match.arms.push(arm);
+                };
+                the_match.arms.push(arm);
+            }
+        } else {
+            let variant_ident = format_ident!("{}", variant.variant_name);
+            let string_rep = &variant.original_name;
+            let arm: syn::Arm = syn::parse_quote! {
+                #string_rep => {return std::result::Result::Ok(#enum_name::#variant_ident)},
+            };
+            the_match.arms.push(arm);
+        }
     }
     // Wildcard case _ => return err
     {
@@ -108,29 +160,46 @@ fn generate_from_string(
     }
 }
 
-fn generate_display(
-    variant_map: &[(String, String)],
-    new_enum: &syn::ItemEnum,
-) -> proc_macro2::TokenStream {
+fn generate_display(analysis: &DerivedType, new_enum: &syn::ItemEnum) -> proc_macro2::TokenStream {
+    let variants = &analysis.variants;
     let enum_name = &new_enum.ident;
     let mut the_match: syn::ExprMatch = syn::parse_quote! {
         match self {
 
         }
     };
-    for (string_rep, variant) in variant_map {
-        let variant_ident = format_ident!("{}", variant);
-        let string_rep = match string_rep.as_str() {
-            "{" => "{{".to_string(),
-            "}" => "}}".to_string(),
-            _ => string_rep.to_string()
-        };
-        let arm: syn::Arm = syn::parse_quote! {
-            Self::#variant_ident => { write!(f, #string_rep) },
+    for variant in variants {
+        let variant_ident = format_ident!("{}", variant.variant_name);
+        if let Some(subtypes) = &variant.subtypes {
+            for sub in &subtypes.variants {
+                let string_rep = &sub.original_name;
+                let subtype_ident = format_ident!("{}", sub.variant_name);
+                let string_rep = match string_rep.as_str() {
+                    "{" => "{{".to_string(),
+                    "}" => "}}".to_string(),
+                    _ => string_rep.to_string(),
+                };
+                let arm: syn::Arm = syn::parse_quote! {
+                    Self::#variant_ident(#variant_ident::#subtype_ident) => { write!(f, #string_rep) },
 
-        };
+                };
 
-        the_match.arms.push(arm);
+                the_match.arms.push(arm);
+            }
+        } else {
+            let string_rep = &variant.original_name;
+            let string_rep = match string_rep.as_str() {
+                "{" => "{{".to_string(),
+                "}" => "}}".to_string(),
+                _ => string_rep.to_string(),
+            };
+            let arm: syn::Arm = syn::parse_quote! {
+                Self::#variant_ident => { write!(f, #string_rep) },
+
+            };
+
+            the_match.arms.push(arm);
+        }
     }
     // Wildcard case _ => return err
     {
