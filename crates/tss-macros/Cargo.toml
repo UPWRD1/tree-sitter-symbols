@@ -1,0 +1,28 @@
+[package]
+name = "tss-macros"
+authors.workspace = true
+description.workspace = true
+edition.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+license.workspace = true
+readme.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[lib]
+proc-macro = true # <---- IMPORTANT
+name = "tss_macros"
+path = "src/lib.rs"
+
+[dependencies]
+cargo_metadata = "0.23.1"
+darling = "0.23.0"
+heck = "0.5.0"
+proc-macro2 = "1.0.86"
+quote = "1.0.36"
+serde = {version = "1.0.228", features = ["derive"]}
+serde_json = "1.0.149"
+syn = { version = "2.0.70", features = ["full"] }
+unicode_names2 = "2.0.0"

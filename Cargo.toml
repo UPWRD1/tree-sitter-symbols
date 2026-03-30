@@ -1,21 +1,14 @@
 [workspace.dependencies]
 # Internal crates
-tss = { path = "crates/tss", version = "0.2.2" }
-tss-rust = { path = "crates/tss-rust", version = "0.2.2" }
-
-ropey = { version = "1.6" }
-serde = { features = ["derive"], version = "1.0" }
-serde_json = { version = "1.0" }
-textum = { version = "0.1.1" }
-tree-sitter-rust = { version = "0.24.0" }
+tss-macros= { path = "crates/tss-macros", version = "0.0.1" }
 
 [workspace]
 members = ["crates/*"]
-resolver = "2"
+resolver = "3"
 
 [workspace.package]
-authors = ["Louis Maddox <louismmx@gmail.com>"]
-description = "Generated node type enums and metadata from tree-sitter language crates"
+authors = ["Louis Maddox <louismmx@gmail.com>", "Luke Davis <luke.n.davis.7@gmail.com>"]
+description = "Generate node type enums and metadata from tree-sitter language crates"
 # documentation = "https://docs.rs/tss/"
 edition = "2021"
 homepage = "https://github.com/lmmx/tree-sitter-symbols"
