@@ -13,5 +13,6 @@ version.workspace = true
 
 [dependencies]
 tree-sitter = "0.26.7"
+tree-sitter-python = "0.25.0"
 tree-sitter-rust = "0.24.2"
 tss-macros = {path = "../tss-macros"}

@@ -17,7 +17,7 @@ pub fn generate(crate_name: &str) -> io::Result<Vec<(String, String)>> {
         .parent()
         .unwrap()
         .join("src/node-types.json");
-    println!("{json_path}");
+    // println!("{json_path}");
     let node_json_string = std::fs::read_to_string(json_path)?;
 
     // Parse the nodes from the provided json
@@ -33,16 +33,25 @@ fn build_variant_map(node_types: &[NodeType]) -> Vec<(String, String)> {
     let mut result = Vec::new();
 
     for node_type in node_types {
-        let mut name = node_type.node_type_name.clone();
+        let original = node_type.node_type_name.clone();
+        let mut name = original.clone();
         let chars = name.chars();
-        name = chars
-            .map(|c| {
+        name = chars.enumerate()
+            .map(|(i, c)| {
+                if i==0 {
                 if !(c.is_alphabetic() || c == '_') {
                     unicode_names2::name(c).unwrap().to_string()
                 } else {
                     c.to_string()
                 }
-            })
+            } else {
+                
+ if !(c.is_alphanumeric() || c == '_') {
+                         unicode_names2::name(c).unwrap().to_string()
+                } else {
+                    c.to_string()
+            }
+            }})
             .collect();
         name = name.to_upper_camel_case();
         name = match syn::parse_str::<syn::Ident>(&name) {
@@ -55,6 +64,10 @@ fn build_variant_map(node_types: &[NodeType]) -> Vec<(String, String)> {
             // continue;
         }
 
+        if original.chars().next() == Some('_') {
+            name = format!("_{name}")
+        }
+
         let variant_name = if let Some(count) = seen.get_mut(&name) {
             *count += 1;
             format!("{name}{count}")
@@ -62,12 +75,12 @@ fn build_variant_map(node_types: &[NodeType]) -> Vec<(String, String)> {
             seen.insert(name.clone(), 1);
             name.clone()
         };
-        if name.is_empty() {
+        if variant_name.is_empty() {
             continue;
         }
-        dbg!(&name);
+        // dbg!(&variant_name);
 
-        result.push((name, variant_name));
+        result.push((original, variant_name));
     }
     result
 }

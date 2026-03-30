@@ -1,6 +1,5 @@
 // Modified from https://medium.com/@alfred.weirich/the-rust-macro-system-part-1-an-introduction-to-attribute-macros-73c963fd63ea
 extern crate proc_macro;
-// use darling::{ast::NestedMeta, FromMeta};
 use proc_macro2::Span;
 use quote::{format_ident, quote};
 
@@ -39,7 +38,7 @@ pub fn generate_nodes(
         }
         for (_, variant_name_string) in &variant_map {
             new_enum.variants.push(syn::Variant {
-                ident: syn::Ident::new(variant_name_string, Span::call_site()),
+                ident: syn::Ident::new(variant_name_string, Span::mixed_site()),
                 attrs: vec![],
                 fields: syn::Fields::Unit,
                 discriminant: None, //TODO Consider investigating if this can be the tree-sitter node ID
@@ -52,8 +51,8 @@ pub fn generate_nodes(
     }
 
     // Generate conversion functions
-    let (from_string) = generate_from_string(&variant_map, &new_enum);
-    let (display) = generate_display(&variant_map, &new_enum);
+    let from_string = generate_from_string(&variant_map, &new_enum);
+    let display = generate_display(&variant_map, &new_enum);
 
     // Collect and process any errors encountered during field processing
     // let all_errors: Vec<proc_macro2::TokenStream> = [getter_errors, setter_errors].concat();
@@ -93,7 +92,7 @@ fn generate_from_string(
     // Wildcard case _ => return err
     {
         let wildcard_arm: syn::Arm = syn::parse_quote! {
-            err => {return std::result::Result::Err(format!("Unknown token name: '{err}'"))},
+            err => {return panic!("Unknown token name: '{err}'")},
         };
         the_match.arms.push(wildcard_arm);
     }
@@ -121,8 +120,13 @@ fn generate_display(
     };
     for (string_rep, variant) in variant_map {
         let variant_ident = format_ident!("{}", variant);
+        let string_rep = match string_rep.as_str() {
+            "{" => "{{".to_string(),
+            "}" => "}}".to_string(),
+            _ => string_rep.to_string()
+        };
         let arm: syn::Arm = syn::parse_quote! {
-            #variant_ident => {write!(f, #string_rep)},
+            Self::#variant_ident => { write!(f, #string_rep) },
 
         };
 
