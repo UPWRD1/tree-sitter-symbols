@@ -19,29 +19,29 @@ pub struct NodeType {
 pub struct Children {
     pub multiple: bool,
     pub required: bool,
-    pub types: Vec<ChildrenType>,
+    pub types: Vec<Subtype>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ChildrenType {
-    pub named: bool,
-    #[serde(rename = "type")]
-    pub child_type_name: String,
-}
+// #[derive(Debug, Clone, Serialize, Deserialize)]
+// pub struct ChildrenType {
+//     pub named: bool,
+//     #[serde(rename = "type")]
+//     pub child_type_name: String,
+// }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Field {
     pub multiple: bool,
     pub required: bool,
-    pub types: Vec<FieldType>,
+    pub types: Vec<Subtype>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct FieldType {
-    pub named: bool,
-    #[serde(rename = "type")]
-    pub field_type_name: String,
-}
+// #[derive(Debug, Clone, Serialize, Deserialize)]
+// pub struct FieldType {
+//     pub named: bool,
+//     #[serde(rename = "type")]
+//     pub field_type_name: String,
+// }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Subtype {

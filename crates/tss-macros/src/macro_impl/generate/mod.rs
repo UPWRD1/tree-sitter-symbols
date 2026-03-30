@@ -1,16 +1,18 @@
 use super::schema::NodeType;
 use heck::{ToKebabCase, ToUpperCamelCase};
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::io::{self};
 
-#[derive(Clone, PartialEq, Eq, Hash)]
+#[derive(Clone, PartialEq, Eq, Hash, Default)]
 pub struct Variant {
+    pub multiple: bool,
     pub variant_name: String,
     pub original_name: String,
     pub subtypes: Option<DerivedType>,
+    pub children: Option<DerivedType>,
 }
 
-#[derive(Clone, PartialEq, Eq, Hash)]
+#[derive(Clone, PartialEq, Eq, Hash, Default)]
 pub struct DerivedType {
     pub variants: Vec<Variant>,
 }
@@ -22,14 +24,19 @@ pub fn analyze(crate_name: &str) -> io::Result<DerivedType> {
         .packages
         .iter()
         .find(|p| p.name == crate_name.to_kebab_case())
-        .expect("Crate not found in dependencies");
+        .ok_or_else(|| {
+            io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "Crate not found in dependencies",
+            )
+        })?;
 
     let json_path = package
         .manifest_path
         .parent()
         .unwrap()
         .join("src/node-types.json");
-    // println!("{json_path}");
+
     let node_json_string = std::fs::read_to_string(json_path)?;
 
     // Parse the nodes from the provided json
@@ -43,6 +50,7 @@ pub fn analyze(crate_name: &str) -> io::Result<DerivedType> {
 fn build_variants(node_types: &[NodeType]) -> DerivedType {
     let mut seen_variants = HashSet::new();
     let mut seen_subtypes: HashSet<String> = HashSet::new();
+    let mut seen_children: HashSet<String> = HashSet::new();
     let mut potential_variants = HashSet::new();
     for node_type in node_types {
         let original = node_type.clone();
@@ -55,7 +63,13 @@ fn build_variants(node_types: &[NodeType]) -> DerivedType {
             unreachable!("should have continued")
         };
 
-        let variant = if let Some(subtypes) = &node_type.subtypes {
+        let mut variant = Variant {
+            variant_name,
+            original_name,
+            ..Variant::default()
+        };
+
+        if let Some(subtypes) = &node_type.subtypes {
             for sub in subtypes {
                 if sub.named {
                     seen_subtypes.insert(sub.subchild_type_name.clone());
@@ -67,36 +81,60 @@ fn build_variants(node_types: &[NodeType]) -> DerivedType {
                     .filter_map(|s| {
                         let subtype_name =
                             mangle_node_name(&mut seen_variants, s.named, &s.subchild_type_name);
-                        match subtype_name {
-                            Some(subtype_name) => Some(Variant {
-                                variant_name: subtype_name,
-                                original_name: s.subchild_type_name.clone(),
-                                subtypes: None,
-                            }),
-                            None => None,
-                        }
+                        subtype_name.map(|subtype_name| Variant {
+                            multiple: false,
+                            variant_name: subtype_name,
+                            original_name: s.subchild_type_name.clone(),
+                            subtypes: None,
+                            children: None,
+                        })
                     })
                     .collect(),
             };
 
-            Variant {
-                variant_name,
-                original_name,
+            variant = Variant {
                 subtypes: Some(subtypes),
-            }
-        } else {
-            Variant {
-                variant_name,
-                original_name,
-                subtypes: None,
-            }
+                ..variant
+            };
         };
+
+        if let Some(children) = &node_type.children {
+            for child in &children.types {
+                if child.named {
+                    seen_children.insert(child.subchild_type_name.clone());
+                }
+            }
+            let subtypes = DerivedType {
+                variants: children
+                    .types
+                    .iter()
+                    .filter_map(|s| {
+                        let subtype_name =
+                            mangle_node_name(&mut seen_children, s.named, &s.subchild_type_name);
+                        subtype_name.map(|subtype_name| Variant {
+                            multiple: children.multiple,
+                            variant_name: subtype_name,
+                            original_name: s.subchild_type_name.clone(),
+                            subtypes: None,
+                            children: None,
+                        })
+                    })
+                    .collect(),
+            };
+
+            variant = Variant {
+                subtypes: Some(subtypes),
+                ..variant
+            };
+        };
+
         potential_variants.insert(variant);
     }
 
     let variants = potential_variants
         .into_iter()
         .filter(|k| !seen_subtypes.contains(&k.original_name))
+        .filter(|k| !seen_children.contains(&k.original_name))
         .collect();
     DerivedType { variants }
 }

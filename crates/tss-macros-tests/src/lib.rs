@@ -1,19 +1,21 @@
+use serde::{Deserialize, Serialize};
 use tss_macros::generate_nodes;
 
-#[generate_nodes(tree_sitter_rust)]
-enum RustNodes {}
-
-// #[generate_nodes(tree_sitter_python)]
+#[generate_nodes(tree_sitter_python)]
+// #[derive(Debug, Clone)]
 enum PyNodes {}
 
 #[cfg(test)]
 mod tests {
-    use crate::PyNodes;
-
+    use super::PyNodes;
     #[test]
     fn match_nodes() {
-        let t: PyNodes;
+        let t: PyNodes = PyNodes::_SimpleStatement(_SimpleStatement::PassStatement);
         match t {
+            PyNodes::_SimpleStatement(_SimpleStatement::PassStatement) => {
+                println!("pass statement")
+            }
+
             _ => todo!(),
         }
     }

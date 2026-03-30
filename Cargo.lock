@@ -455,6 +455,8 @@ dependencies = [
 name = "tss-macros-tests"
 version = "0.0.1"
 dependencies = [
+ "serde",
+ "serde_json",
  "tree-sitter",
  "tree-sitter-python",
  "tree-sitter-rust",

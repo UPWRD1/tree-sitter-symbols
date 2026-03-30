@@ -1,9 +1,8 @@
 // Modified from https://medium.com/@alfred.weirich/the-rust-macro-system-part-1-an-introduction-to-attribute-macros-73c963fd63ea
-extern crate proc_macro;
-use std::fmt::format;
+// extern crate proc_macro;
 
 use proc_macro2::Span;
-use quote::{format_ident, quote};
+use quote::{format_ident, quote, quote_spanned};
 use syn::{token, Generics};
 
 mod generate;
@@ -12,7 +11,7 @@ mod schema;
 use crate::macro_impl::generate::DerivedType;
 
 pub fn generate_nodes_impl(
-    crate_name: String,
+    crate_name: syn::Ident,
     input: proc_macro2::TokenStream,
 ) -> proc_macro2::TokenStream {
     // Parse input struct and handle parse errors
@@ -30,14 +29,15 @@ pub fn generate_nodes_impl(
     let mut accum: proc_macro2::TokenStream = quote! {};
     // Check if the enum has ANY variants
     if new_enum.variants.is_empty() {
-        match generate::analyze(&crate_name) {
+        match generate::analyze(&crate_name.to_string()) {
             Ok(vm) => {
                 analysis = vm;
             }
             Err(e) => {
                 let e = e.to_string();
-                let msg = format!("Error generating variants: {e}");
-                return quote! {
+                let msg = format!("Error: {e}");
+                let crate_span = crate_name.span();
+                return quote_spanned! {crate_span=>
                     compile_error!(#msg);
                 };
             }
@@ -46,8 +46,8 @@ pub fn generate_nodes_impl(
             let variant_ident = syn::Ident::new(&variant.variant_name, Span::mixed_site());
             let fields = if let Some(subtypes) = &variant.subtypes {
                 let mut new_type = syn::ItemEnum {
-                    attrs: vec![],
-                    vis: syn::Visibility::Public(syn::Token![pub](Span::mixed_site())),
+                    attrs: the_enum.attrs.clone(),
+                    vis: the_enum.vis.clone(),
                     enum_token: syn::Token![enum](Span::mixed_site()),
                     ident: variant_ident.clone(),
                     generics: Generics {
@@ -68,7 +68,6 @@ pub fn generate_nodes_impl(
                     })
                 }
                 let subtype_enum = quote! {
-                    #[derive(Debug, Clone)]
                     #new_type
                 };
                 accum = quote! {
@@ -144,7 +143,7 @@ fn generate_from_string(
     // Wildcard case _ => return err
     {
         let wildcard_arm: syn::Arm = syn::parse_quote! {
-            err => {return panic!("Unknown token name: '{err}'")},
+            err => {panic!("Unknown token name: '{err}'")},
         };
         the_match.arms.push(wildcard_arm);
     }
@@ -201,13 +200,6 @@ fn generate_display(analysis: &DerivedType, new_enum: &syn::ItemEnum) -> proc_ma
             the_match.arms.push(arm);
         }
     }
-    // Wildcard case _ => return err
-    {
-        let wildcard_arm: syn::Arm = syn::parse_quote! {
-        err => {return panic!("Unknown token name: '{err}'")},        };
-        the_match.arms.push(wildcard_arm);
-    }
-
     quote! {
         impl std::fmt::Display for #enum_name {
            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
