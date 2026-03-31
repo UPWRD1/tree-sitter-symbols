@@ -6,5 +6,5 @@ mod macro_impl;
 /// The resulting types inherit the visibility and ALL attributes of the parent type.
 pub fn generate_nodes(attr: TokenStream, item: TokenStream) -> TokenStream {
     let crate_name = syn::parse_macro_input!(attr as syn::Ident);
-    macro_impl::generate_nodes_impl(crate_name, item.into()).into()
+    macro_impl::macro_impl(crate_name, item.into()).into()
 }

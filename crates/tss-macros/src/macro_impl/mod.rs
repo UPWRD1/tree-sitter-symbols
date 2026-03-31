@@ -1,16 +1,15 @@
 // Modified from https://medium.com/@alfred.weirich/the-rust-macro-system-part-1-an-introduction-to-attribute-macros-73c963fd63ea
 // extern crate proc_macro;
 
-use proc_macro2::Span;
-use quote::{format_ident, quote, quote_spanned};
-use syn::{token, Generics};
+use crate::macro_impl::schema::NamedNodeType;
+use quote::{quote, quote_spanned};
+use std::collections::HashSet;
 
 mod generate;
+mod parse;
 mod schema;
 
-use crate::macro_impl::generate::DerivedType;
-
-pub fn generate_nodes_impl(
+pub fn macro_impl(
     crate_name: syn::Ident,
     input: proc_macro2::TokenStream,
 ) -> proc_macro2::TokenStream {
@@ -23,188 +22,182 @@ pub fn generate_nodes_impl(
     };
 
     // Retrieve the name of the enum
-    let mut new_enum: syn::ItemEnum = the_enum.clone();
 
-    let analysis: DerivedType;
-    let mut accum: proc_macro2::TokenStream = quote! {};
+    let mut analysis: HashSet<NamedNodeType> = HashSet::default();
     // Check if the enum has ANY variants
-    if new_enum.variants.is_empty() {
-        match generate::analyze(&crate_name.to_string()) {
-            Ok(vm) => {
-                analysis = vm;
-            }
-            Err(e) => {
-                let e = e.to_string();
-                let msg = format!("Error: {e}");
-                let crate_span = crate_name.span();
-                return quote_spanned! {crate_span=>
-                    compile_error!(#msg);
-                };
-            }
-        }
-        for variant in &analysis.variants {
-            let variant_ident = syn::Ident::new(&variant.variant_name, Span::mixed_site());
-            let fields = if let Some(subtypes) = &variant.subtypes {
-                let mut new_type = syn::ItemEnum {
-                    attrs: the_enum.attrs.clone(),
-                    vis: the_enum.vis.clone(),
-                    enum_token: syn::Token![enum](Span::mixed_site()),
-                    ident: variant_ident.clone(),
-                    generics: Generics {
-                        lt_token: None,
-                        params: syn::punctuated::Punctuated::new(),
-                        gt_token: None,
-                        where_clause: None,
-                    },
-                    brace_token: token::Brace(Span::mixed_site()),
-                    variants: syn::punctuated::Punctuated::new(),
-                };
-                for subtype in &subtypes.variants {
-                    new_type.variants.push(syn::Variant {
-                        ident: syn::Ident::new(&subtype.variant_name, Span::mixed_site()),
-                        attrs: vec![],
-                        fields: syn::Fields::Unit,
-                        discriminant: None, //TODO Consider investigating if this can be the tree-sitter node ID
-                    })
-                }
-                let subtype_enum = quote! {
-                    #new_type
-                };
-                accum = quote! {
-                    #subtype_enum
-
-                    #accum
-                };
-                syn::Fields::Unnamed(syn::parse_quote! {(#variant_ident)})
-            } else {
-                syn::Fields::Unit
-            };
-            new_enum.variants.push(syn::Variant {
-                ident: syn::Ident::new(&variant.variant_name, Span::mixed_site()),
-                attrs: vec![],
-                fields,
-                discriminant: None, //TODO Consider investigating if this can be the tree-sitter node ID
-            });
-        }
+    let accum = if the_enum.variants.is_empty() {
+        generate_types(crate_name, the_enum, &mut analysis)
     } else {
-        return quote! {
+        quote! {
             compile_error!("This macro only operates on enums with no variants");
-        };
-    }
+        }
+    };
 
     // Generate conversion functions
-    let from_string = generate_from_string(&analysis, &new_enum);
-    let display = generate_display(&analysis, &new_enum);
+    // let from_string = generate_from_string(&analysis, &the_enum);
+    // let display = generate_display(&analysis, &the_enum);
 
     // Generate the final enum and conversion functions
     quote! {
         #accum
 
-        #new_enum
 
-        #from_string
 
-        #display
+        // #from_string
+
+        // #display
     }
 }
 
-fn generate_from_string(
-    analysis: &DerivedType,
-    new_enum: &syn::ItemEnum,
+fn generate_types(
+    crate_name: syn::Ident,
+    base_enum: syn::ItemEnum,
+    analysis: &mut HashSet<NamedNodeType>,
 ) -> proc_macro2::TokenStream {
-    let variants = &analysis.variants;
-    let enum_name = &new_enum.ident;
-    let mut the_match: syn::ExprMatch = syn::parse_quote! {
-        match s {
-
+    let mut root_enum = base_enum.clone();
+    match parse::analyze(&crate_name.to_string()) {
+        Ok(vm) => {
+            *analysis = vm;
         }
-    };
-    for variant in variants {
-        if let Some(subtypes) = &variant.subtypes {
-            let variant_ident = format_ident!("{}", variant.variant_name);
-            for sub in &subtypes.variants {
-                let string_rep = &sub.original_name;
-                let subtype_ident = format_ident!("{}", sub.variant_name);
-                let arm: syn::Arm = syn::parse_quote! {
-                    #string_rep => {return std::result::Result::Ok(#enum_name::#variant_ident(#variant_ident::#subtype_ident))},
-
-                };
-                the_match.arms.push(arm);
-            }
-        } else {
-            let variant_ident = format_ident!("{}", variant.variant_name);
-            let string_rep = &variant.original_name;
-            let arm: syn::Arm = syn::parse_quote! {
-                #string_rep => {return std::result::Result::Ok(#enum_name::#variant_ident)},
+        Err(e) => {
+            let e = e.to_string();
+            let msg = format!("Error: {e}");
+            let crate_span = crate_name.span();
+            return quote_spanned! {crate_span=>
+                compile_error!(#msg);
             };
-            the_match.arms.push(arm);
         }
     }
-    // Wildcard case _ => return err
-    {
-        let wildcard_arm: syn::Arm = syn::parse_quote! {
-            err => {panic!("Unknown token name: '{err}'")},
-        };
-        the_match.arms.push(wildcard_arm);
-    }
 
-    quote! {
-        impl std::str::FromStr for #enum_name {
-            type Err = String;
+    let mut seen: HashSet<syn::Ident> = HashSet::default();
 
-            fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-                #the_match
+    let items: Vec<proc_macro2::TokenStream> = analysis
+        .iter()
+        .map(|element| {
+            dbg!(&element);
+            seen.insert(element.rustified_name.clone());
+            let newtype = match &element.class {
+                schema::NodeClass::Terminal => generate::terminal(&mut root_enum, element),
+                schema::NodeClass::FieldsOnly { fields } => {
+                    generate::fields_only(&mut root_enum, element, fields)
+                }
+                schema::NodeClass::FieldsAndChildren { fields, children } => {
+                    generate::fields_and_children(&mut root_enum, element, fields, children)
+                }
+                schema::NodeClass::ChildrenOnly { children } => {
+                    generate::children_only(&mut root_enum, element, children)
+                }
+                schema::NodeClass::SuperType { subtypes } => {
+                    generate::supertype_enum(&mut root_enum, element, subtypes)
+                }
+            };
+            quote! {
+                #newtype
             }
-        }
+        })
+        .collect();
+    quote! {
+        #(#items)*
     }
 }
 
-fn generate_display(analysis: &DerivedType, new_enum: &syn::ItemEnum) -> proc_macro2::TokenStream {
-    let variants = &analysis.variants;
-    let enum_name = &new_enum.ident;
-    let mut the_match: syn::ExprMatch = syn::parse_quote! {
-        match self {
+// fn generate_from_string(
+//     analysis: &,
+//     new_enum: &syn::ItemEnum,
+// ) -> proc_macro2::TokenStream {
+//     let variants = &analysis.variants;
+//     let enum_name = &new_enum.ident;
+//     let mut the_match: syn::ExprMatch = syn::parse_quote! {
+//         match s {
 
-        }
-    };
-    for variant in variants {
-        let variant_ident = format_ident!("{}", variant.variant_name);
-        if let Some(subtypes) = &variant.subtypes {
-            for sub in &subtypes.variants {
-                let string_rep = &sub.original_name;
-                let subtype_ident = format_ident!("{}", sub.variant_name);
-                let string_rep = match string_rep.as_str() {
-                    "{" => "{{".to_string(),
-                    "}" => "}}".to_string(),
-                    _ => string_rep.to_string(),
-                };
-                let arm: syn::Arm = syn::parse_quote! {
-                    Self::#variant_ident(#variant_ident::#subtype_ident) => { write!(f, #string_rep) },
+//         }
+//     };
+//     for variant in variants {
+//         if let Some(subtypes) = &variant.subtypes {
+//             let variant_ident = format_ident!("{}", variant.variant_name);
+//             for sub in &subtypes.variants {
+//                 let string_rep = &sub.original_name;
+//                 let subtype_ident = format_ident!("{}", sub.variant_name);
+//                 let arm: syn::Arm = syn::parse_quote! {
+//                     #string_rep => {return std::result::Result::Ok(#enum_name::#variant_ident(#variant_ident::#subtype_ident))},
 
-                };
+//                 };
+//                 the_match.arms.push(arm);
+//             }
+//         } else {
+//             let variant_ident = format_ident!("{}", variant.variant_name);
+//             let string_rep = &variant.original_name;
+//             let arm: syn::Arm = syn::parse_quote! {
+//                 #string_rep => {return std::result::Result::Ok(#enum_name::#variant_ident)},
+//             };
+//             the_match.arms.push(arm);
+//         }
+//     }
+//     // Wildcard case _ => return err
+//     {
+//         let wildcard_arm: syn::Arm = syn::parse_quote! {
+//             err => {panic!("Unknown token name: '{err}'")},
+//         };
+//         the_match.arms.push(wildcard_arm);
+//     }
 
-                the_match.arms.push(arm);
-            }
-        } else {
-            let string_rep = &variant.original_name;
-            let string_rep = match string_rep.as_str() {
-                "{" => "{{".to_string(),
-                "}" => "}}".to_string(),
-                _ => string_rep.to_string(),
-            };
-            let arm: syn::Arm = syn::parse_quote! {
-                Self::#variant_ident => { write!(f, #string_rep) },
+//     quote! {
+//         impl std::str::FromStr for #enum_name {
+//             type Err = String;
 
-            };
+//             fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+//                 #the_match
+//             }
+//         }
+//     }
+// }
 
-            the_match.arms.push(arm);
-        }
-    }
-    quote! {
-        impl std::fmt::Display for #enum_name {
-           fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-               #the_match
-           }
-        }
-    }
-}
+// fn generate_display(analysis: &DerivedType, new_enum: &syn::ItemEnum) -> proc_macro2::TokenStream {
+//     let variants = &analysis.variants;
+//     let enum_name = &new_enum.ident;
+//     let mut the_match: syn::ExprMatch = syn::parse_quote! {
+//         match self {
+
+//         }
+//     };
+//     for variant in variants {
+//         let variant_ident = format_ident!("{}", variant.variant_name);
+//         if let Some(subtypes) = &variant.subtypes {
+//             for sub in &subtypes.variants {
+//                 let string_rep = &sub.original_name;
+//                 let subtype_ident = format_ident!("{}", sub.variant_name);
+//                 let string_rep = match string_rep.as_str() {
+//                     "{" => "{{".to_string(),
+//                     "}" => "}}".to_string(),
+//                     _ => string_rep.to_string(),
+//                 };
+//                 let arm: syn::Arm = syn::parse_quote! {
+//                     Self::#variant_ident(#variant_ident::#subtype_ident) => { write!(f, #string_rep) },
+
+//                 };
+
+//                 the_match.arms.push(arm);
+//             }
+//         } else {
+//             let string_rep = &variant.original_name;
+//             let string_rep = match string_rep.as_str() {
+//                 "{" => "{{".to_string(),
+//                 "}" => "}}".to_string(),
+//                 _ => string_rep.to_string(),
+//             };
+//             let arm: syn::Arm = syn::parse_quote! {
+//                 Self::#variant_ident => { write!(f, #string_rep) },
+
+//             };
+
+//             the_match.arms.push(arm);
+//         }
+//     }
+//     quote! {
+//         impl std::fmt::Display for #enum_name {
+//            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//                #the_match
+//            }
+//         }
+//     }
+// }

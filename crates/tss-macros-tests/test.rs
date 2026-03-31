@@ -5,549 +5,884 @@ use std::prelude::rust_2021::*;
 use serde::{Deserialize, Serialize};
 use tss_macros::generate_nodes;
 
-enum Slice {}
-enum Tuple {}
-enum WithClause {}
-enum Await {}
-enum Chevron {}
-enum LambdaParameters {}
-enum PatternList {}
-enum Decorator {}
-enum List {}
-enum GeneratorExpression {}
-enum ExceptClause {}
-enum Dictionary {}
-enum Module {}
-enum Set {}
-enum Parameters {}
-enum ArgumentList {}
-enum FormatSpecifier {}
-enum DictionaryComprehension {}
-enum RelativeImport {}
-enum FinallyClause {}
-enum ListComprehension {}
-enum CaseClause {}
-enum SetComprehension {}
-// #[derive(Debug, Clone)]
-enum PyNodes {
-    SetComprehension(SetComprehension),
-    AmpersandToken,
-    SolidusequalsSignToken,
-    TypeConversion,
-    CaseClause(CaseClause),
-    PercentSignToken,
-    HyphenMinusgreaterThanSignToken,
-    ListComprehension(ListComprehension),
-    EqualsSignequalsSignToken,
-    ExclamationMarkequalsSignToken,
-    WhileToken,
-    LessThanSignequalsSignToken,
-    LessThanSignToken,
-    PassToken,
-    AmpersandequalsSignToken,
-    BinaryOperator,
-    AsToken,
-    FinallyClause(FinallyClause),
-    RelativeImport(RelativeImport),
-    DictionaryComprehension(DictionaryComprehension),
-    FormatSpecifier(FormatSpecifier),
-    AsteriskasteriskToken,
-    AsteriskToken,
-    _FutureToken,
-    ForToken,
-    ElifToken,
-    FromToken,
-    TildeToken,
-    DefToken,
-    GlobalToken,
-    Comment,
-    LeftCurlyBracketToken,
-    ArgumentList(ArgumentList),
-    LeftParenthesisToken,
-    ElseToken,
-    RaiseToken,
-    TryToken,
-    SolidussolidusToken,
-    GreaterThanSignToken,
-    NonlocalToken,
-    PercentSignequalsSignToken,
-    LessThanSigngreaterThanSignToken,
-    SemicolonToken,
-    PlusSignequalsSignToken,
-    DelToken,
-    IsToken,
-    Parameters(Parameters),
-    VerticalLineToken,
-    RightCurlyBracketToken,
-    CircumflexAccentequalsSignToken,
-    FinallyToken,
-    FullStopToken,
-    Set(Set),
-    AliasedImport,
-    CommercialAtToken,
-    ColonToken,
-    AsteriskasteriskequalsSignToken,
-    ExceptToken,
-    RightSquareBracketToken,
-    SolidusToken,
-    GreaterThanSignequalsSignToken,
-    Call,
-    HyphenMinusequalsSignToken,
-    AndToken,
-    AsyncToken,
-    WithToken,
-    GreaterThanSigngreaterThanSignToken,
-    ElifClause,
-    Module(Module),
-    EqualsSignToken,
-    ReverseSolidusToken,
-    AssertToken,
-    SolidussolidusequalsSignToken,
-    _Token,
-    Dictionary(Dictionary),
-    PlusSignToken,
-    IfToken,
-    ExceptClause(ExceptClause),
-    AugmentedAssignment,
-    GeneratorExpression(GeneratorExpression),
-    CaseToken,
-    HyphenMinusToken,
-    List(List),
-    ClassToken,
-    RightParenthesisToken,
-    GreaterThanSigngreaterThanSignequalsSignToken,
-    LineContinuation,
-    UnaryOperator,
-    Assignment,
-    Decorator(Decorator),
-    VerticalLineequalsSignToken,
-    LessThanSignlessThanSignequalsSignToken,
+struct Decorator {
+    expression: Expression,
+}
+enum ListPatternChild { CasePattern(CasePattern), Pattern(Pattern), }
+struct ListPattern {
+    children: std::option::Option<std::vec::Vec<ListPatternChild>>,
+}
+struct DictionarySplat {
+    expression: Expression,
+}
+struct ExclamationMarkequalsSignToken;
+struct NamedExpression {
+    value: Expression,
+    name: Identifier,
+}
+struct ExecToken;
+struct WhileToken;
+struct VerticalLineequalsSignToken;
+struct SolidussolidusequalsSignToken;
+struct TildeToken;
+struct HyphenMinusToken;
+enum ParenthesizedExpressionChild {
+    Expression(Expression),
+    ListSplat(ListSplat),
+    ParenthesizedExpression(ParenthesizedExpression),
+    Yield(Yield),
+}
+struct ParenthesizedExpression {
+    children: ParenthesizedExpressionChild,
+}
+enum TypedParameterChild {
+    DictionarySplatPattern(DictionarySplatPattern),
+    Identifier(Identifier),
+    ListSplatPattern(ListSplatPattern),
+}
+struct TypedParameter {}
+enum _CompoundStatement {
+    ClassDefinition(ClassDefinition),
+    DecoratedDefinition(DecoratedDefinition),
+    ForStatement(ForStatement),
+    FunctionDefinition(FunctionDefinition),
+    IfStatement(IfStatement),
+    MatchStatement(MatchStatement),
+    TryStatement(TryStatement),
+    WhileStatement(WhileStatement),
+    WithStatement(WithStatement),
+}
+struct TypeParameter {
+    children: std::vec::Vec<Type>,
+}
+struct LineContinuation;
+struct GreaterThanSigngreaterThanSignequalsSignToken;
+struct CommaToken;
+enum UnionPatternChild {
+    ClassPattern(ClassPattern),
+    ComplexPattern(ComplexPattern),
+    ConcatenatedString(ConcatenatedString),
+    DictPattern(DictPattern),
+    DottedName(DottedName),
+    False(False),
+    Float(Float),
+    Integer(Integer),
+    ListPattern(ListPattern),
+    None(None),
+    SplatPattern(SplatPattern),
+    String(String),
+    True(True),
+    TuplePattern(TuplePattern),
+    UnionPattern(UnionPattern),
+}
+struct UnionPattern {
+    children: std::option::Option<std::vec::Vec<UnionPatternChild>>,
+}
+struct WithStatement {
+    body: Block,
+    with_clause: WithClause,
+}
+struct ReverseSolidusToken;
+struct CircumflexAccentequalsSignToken;
+struct RightParenthesisToken;
+enum ForStatementChild {
+    Expression(Expression),
+    ExpressionList(ExpressionList),
+}
+enum ForStatementChild { Pattern(Pattern), PatternList(PatternList), }
+struct ForStatement {
+    right: ForStatementChild,
+    left: ForStatementChild,
+    alternative: std::option::Option<ElseClause>,
+    body: Block,
+}
+enum SetComprehensionChild { ForInClause(ForInClause), IfClause(IfClause), }
+struct SetComprehension {
+    body: Expression,
+    children: std::vec::Vec<SetComprehensionChild>,
+}
+struct AsteriskasteriskequalsSignToken;
+struct LessThanSignequalsSignToken;
+struct AsyncToken;
+enum KeywordPatternChild {
+    ClassPattern(ClassPattern),
+    ComplexPattern(ComplexPattern),
+    ConcatenatedString(ConcatenatedString),
+    DictPattern(DictPattern),
+    DottedName(DottedName),
+    False(False),
+    Float(Float),
+    Identifier(Identifier),
+    Integer(Integer),
+    ListPattern(ListPattern),
+    None(None),
+    SplatPattern(SplatPattern),
+    String(String),
+    True(True),
+    TuplePattern(TuplePattern),
+    UnionPattern(UnionPattern),
+}
+struct KeywordPattern {
+    children: std::vec::Vec<KeywordPatternChild>,
+}
+struct Comment;
+enum ComplexPatternChild { Float(Float), Integer(Integer), }
+struct ComplexPattern {
+    children: std::vec::Vec<ComplexPatternChild>,
+}
+struct IfClause {
+    expression: Expression,
+}
+struct WhileStatement {
+    alternative: std::option::Option<ElseClause>,
+    body: Block,
+    condition: Expression,
+}
+struct ElifToken;
+struct False;
+struct TypeConversion;
+struct ColonToken;
+enum BinaryOperatorChild {
+    PercentSignToken(PercentSignToken),
+    AmpersandToken(AmpersandToken),
+    AsteriskToken(AsteriskToken),
+    AsteriskasteriskToken(AsteriskasteriskToken),
+    PlusSignToken(PlusSignToken),
+    HyphenMinusToken(HyphenMinusToken),
+    SolidusToken(SolidusToken),
+    SolidussolidusToken(SolidussolidusToken),
+    LessThanSignlessThanSignToken(LessThanSignlessThanSignToken),
+    GreaterThanSigngreaterThanSignToken(GreaterThanSigngreaterThanSignToken),
+    CommercialAtToken(CommercialAtToken),
+    CircumflexAccentToken(CircumflexAccentToken),
+    VerticalLineToken(VerticalLineToken),
+}
+struct BinaryOperator {
+    right: PrimaryExpression,
+    operator: BinaryOperatorChild,
+    left: PrimaryExpression,
+}
+struct Lambda {
+    body: Expression,
+    parameters: std::option::Option<LambdaParameters>,
+}
+enum ListSplatChild {
+    Attribute(Attribute),
+    Expression(Expression),
+    Identifier(Identifier),
+    Subscript(Subscript),
+}
+struct ListSplat {
+    children: ListSplatChild,
+}
+struct MatchStatement {
+    body: Block,
+    subject: std::vec::Vec<Expression>,
+}
+struct GreaterThanSigngreaterThanSignToken;
+struct CircumflexAccentToken;
+struct AssertToken;
+struct Float;
+enum GeneratorExpressionChild {
+    ForInClause(ForInClause),
+    IfClause(IfClause),
+}
+struct GeneratorExpression {
+    body: Expression,
+    children: std::vec::Vec<GeneratorExpressionChild>,
+}
+struct ForToken;
+struct ConcatenatedString {
+    children: std::vec::Vec<String>,
+}
+struct RaiseToken;
+enum CasePatternChild {
+    AsPattern(AsPattern),
+    ClassPattern(ClassPattern),
+    ComplexPattern(ComplexPattern),
+    ConcatenatedString(ConcatenatedString),
+    DictPattern(DictPattern),
+    DottedName(DottedName),
+    False(False),
+    Float(Float),
+    Integer(Integer),
+    KeywordPattern(KeywordPattern),
+    ListPattern(ListPattern),
+    None(None),
+    SplatPattern(SplatPattern),
+    String(String),
+    True(True),
+    TuplePattern(TuplePattern),
+    UnionPattern(UnionPattern),
+}
+struct CasePattern {
+    children: std::option::Option<CasePatternChild>,
+}
+struct BreakToken;
+struct LeftCurlyBracketToken;
+struct NonlocalStatement {
+    children: std::vec::Vec<Identifier>,
+}
+struct SolidusToken;
+struct BreakStatement;
+struct CaseClause {
+    guard: std::option::Option<IfClause>,
+    consequence: Block,
+    children: std::vec::Vec<CasePattern>,
+}
+enum ListComprehensionChild { ForInClause(ForInClause), IfClause(IfClause), }
+struct ListComprehension {
+    body: Expression,
+    children: std::vec::Vec<ListComprehensionChild>,
+}
+struct WildcardImport;
+enum AugmentedAssignmentChild { Pattern(Pattern), PatternList(PatternList), }
+enum AugmentedAssignmentChild {
+    Assignment(Assignment),
+    AugmentedAssignment(AugmentedAssignment),
+    Expression(Expression),
+    ExpressionList(ExpressionList),
     PatternList(PatternList),
-    ColonequalsSignToken,
-    CircumflexAccentToken,
-    ExecToken,
-    MatchToken,
-    NotToken,
-    NotSpacEinToken,
-    ContinueToken,
-    LambdaParameters(LambdaParameters),
-    IsSpacEnotToken,
-    ElseClause,
-    LeftSquareBracketToken,
-    Chevron(Chevron),
+    Yield(Yield),
+}
+enum AugmentedAssignmentChild {
+    PercentSignequalsSignToken(PercentSignequalsSignToken),
+    AmpersandequalsSignToken(AmpersandequalsSignToken),
+    AsteriskasteriskequalsSignToken(AsteriskasteriskequalsSignToken),
+    AsteriskequalsSignToken(AsteriskequalsSignToken),
+    PlusSignequalsSignToken(PlusSignequalsSignToken),
+    HyphenMinusequalsSignToken(HyphenMinusequalsSignToken),
+    SolidussolidusequalsSignToken(SolidussolidusequalsSignToken),
+    SolidusequalsSignToken(SolidusequalsSignToken),
+    LessThanSignlessThanSignequalsSignToken(LessThanSignlessThanSignequalsSignToken),
+    GreaterThanSigngreaterThanSignequalsSignToken(GreaterThanSigngreaterThanSignequalsSignToken),
+    CommercialAtequalsSignToken(CommercialAtequalsSignToken),
+    CircumflexAccentequalsSignToken(CircumflexAccentequalsSignToken),
+    VerticalLineequalsSignToken(VerticalLineequalsSignToken),
+}
+struct AugmentedAssignment {
+    left: AugmentedAssignmentChild,
+    right: AugmentedAssignmentChild,
+    operator: AugmentedAssignmentChild,
+}
+struct IsSpacEnotToken;
+enum GenericTypeChild {
+    Identifier(Identifier),
+    TypeParameter(TypeParameter),
+}
+struct GenericType {
+    children: std::vec::Vec<GenericTypeChild>,
+}
+enum InterpolationChild {
+    Expression(Expression),
+    ExpressionList(ExpressionList),
+    PatternList(PatternList),
+    Yield(Yield),
+}
+struct Interpolation {
+    format_specifier: std::option::Option<FormatSpecifier>,
+    expression: InterpolationChild,
+    type_conversion: std::option::Option<TypeConversion>,
+}
+struct AsteriskToken;
+struct KeywordArgument {
+    name: Identifier,
+    value: Expression,
+}
+struct PlusSignequalsSignToken;
+struct StringStart;
+struct PlusSignToken;
+struct PercentSignToken;
+struct ElseToken;
+enum Expression {
+    AsPattern(AsPattern),
+    BooleanOperator(BooleanOperator),
+    ComparisonOperator(ComparisonOperator),
+    ConditionalExpression(ConditionalExpression),
+    Lambda(Lambda),
+    NamedExpression(NamedExpression),
+    NotOperator(NotOperator),
+    PrimaryExpression(PrimaryExpression),
+}
+struct NotOperator {
+    argument: Expression,
+}
+enum DictPatternChild {
+    HyphenMinusToken(HyphenMinusToken),
+    _Token(_Token),
+    ClassPattern(ClassPattern),
+    ComplexPattern(ComplexPattern),
+    ConcatenatedString(ConcatenatedString),
+    DictPattern(DictPattern),
+    DottedName(DottedName),
+    False(False),
+    Float(Float),
+    Integer(Integer),
+    ListPattern(ListPattern),
+    None(None),
+    SplatPattern(SplatPattern),
+    String(String),
+    True(True),
+    TuplePattern(TuplePattern),
+    UnionPattern(UnionPattern),
+}
+struct DictPattern {
+    value: std::option::Option<std::vec::Vec<CasePattern>>,
+    key: std::option::Option<std::vec::Vec<DictPatternChild>>,
+    children: std::option::Option<std::vec::Vec<SplatPattern>>,
+}
+enum ParenthesizedListSplatChild {
+    ListSplat(ListSplat),
+    ParenthesizedExpression(ParenthesizedExpression),
+}
+struct ParenthesizedListSplat {
+    children: ParenthesizedListSplatChild,
+}
+struct DefToken;
+enum ListChild {
+    Expression(Expression),
+    ListSplat(ListSplat),
+    ParenthesizedListSplat(ParenthesizedListSplat),
+    Yield(Yield),
+}
+struct List {
+    children: std::option::Option<std::vec::Vec<ListChild>>,
+}
+struct NotToken;
+struct TypeAliasStatement {
+    right: Type,
+    left: Type,
+}
+struct WithToken;
+enum BooleanOperatorChild { AndToken(AndToken), OrToken(OrToken), }
+struct BooleanOperator {
+    operator: BooleanOperatorChild,
+    left: Expression,
+    right: Expression,
+}
+struct AliasedImport {
+    alias: Identifier,
+    name: DottedName,
+}
+struct GlobalToken;
+struct RightCurlyBracketToken;
+struct ImportToken;
+struct ContinueToken;
+enum TypeChild {
+    ConstrainedType(ConstrainedType),
+    Expression(Expression),
+    GenericType(GenericType),
+    MemberType(MemberType),
+    SplatType(SplatType),
+    UnionType(UnionType),
+}
+struct Type {
+    children: TypeChild,
+}
+struct WithClause {
+    children: std::vec::Vec<WithItem>,
+}
+enum TryStatementChild {
+    ElseClause(ElseClause),
+    ExceptClause(ExceptClause),
+    FinallyClause(FinallyClause),
+}
+struct TryStatement {
+    body: Block,
+    children: std::option::Option<std::vec::Vec<TryStatementChild>>,
+}
+struct HyphenMinusequalsSignToken;
+struct EscapeSequence;
+struct MatchToken;
+struct YieldToken;
+struct HyphenMinusgreaterThanSignToken;
+enum DictionaryComprehensionChild {
+    ForInClause(ForInClause),
+    IfClause(IfClause),
+}
+struct DictionaryComprehension {
+    body: Pair,
+    children: std::vec::Vec<DictionaryComprehensionChild>,
+}
+enum ExpressionStatementChild {
+    Assignment(Assignment),
+    AugmentedAssignment(AugmentedAssignment),
+    Expression(Expression),
+    Yield(Yield),
+}
+struct ExpressionStatement {
+    children: std::vec::Vec<ExpressionStatementChild>,
+}
+struct GreaterThanSignToken;
+struct EscapeInterpolation;
+enum _SimpleStatement {
+    AssertStatement(AssertStatement),
+    BreakStatement(BreakStatement),
+    ContinueStatement(ContinueStatement),
+    DeleteStatement(DeleteStatement),
+    ExecStatement(ExecStatement),
+    ExpressionStatement(ExpressionStatement),
+    FutureImportStatement(FutureImportStatement),
+    GlobalStatement(GlobalStatement),
+    ImportFromStatement(ImportFromStatement),
+    ImportStatement(ImportStatement),
+    NonlocalStatement(NonlocalStatement),
+    PassStatement(PassStatement),
+    PrintStatement(PrintStatement),
+    RaiseStatement(RaiseStatement),
+    ReturnStatement(ReturnStatement),
+    TypeAliasStatement(TypeAliasStatement),
+}
+struct ClassDefinition {
+    name: Identifier,
+    body: Block,
+    superclasses: std::option::Option<ArgumentList>,
+    type_parameters: std::option::Option<TypeParameter>,
+}
+struct Chevron {
+    expression: Expression,
+}
+enum ImportFromStatementChild {
+    AliasedImport(AliasedImport),
+    DottedName(DottedName),
+}
+enum ImportFromStatementChild {
+    DottedName(DottedName),
+    RelativeImport(RelativeImport),
+}
+struct ImportFromStatement {
+    name: std::option::Option<std::vec::Vec<ImportFromStatementChild>>,
+    module_name: ImportFromStatementChild,
+    maybe_wildcard_import: std::option::Option<WildcardImport>,
+}
+struct WithItem {
+    value: Expression,
+}
+struct ImportPrefix;
+enum DefaultParameterChild {
+    Identifier(Identifier),
+    TuplePattern(TuplePattern),
+}
+struct DefaultParameter {
+    name: DefaultParameterChild,
+    value: Expression,
+}
+struct _FutureToken;
+struct FunctionDefinition {
+    name: Identifier,
+    parameters: Parameters,
+    body: Block,
+    return_type: std::option::Option<Type>,
+    type_parameters: std::option::Option<TypeParameter>,
+}
+enum ArgumentListChild {
+    DictionarySplat(DictionarySplat),
+    Expression(Expression),
+    KeywordArgument(KeywordArgument),
+    ListSplat(ListSplat),
+    ParenthesizedExpression(ParenthesizedExpression),
+}
+struct ArgumentList {
+    children: std::option::Option<std::vec::Vec<ArgumentListChild>>,
+}
+struct DelToken;
+struct KeywordSeparator;
+struct Slice {
+    children: std::option::Option<std::vec::Vec<Expression>>,
+}
+enum CallChild {
+    ArgumentList(ArgumentList),
+    GeneratorExpression(GeneratorExpression),
+}
+struct Call {
+    arguments: CallChild,
+    function: PrimaryExpression,
+}
+struct GlobalStatement {
+    children: std::vec::Vec<Identifier>,
+}
+struct LessThanSignToken;
+struct InToken;
+struct Await {
+    primary_expression: PrimaryExpression,
+}
+enum StringChild {
+    Interpolation(Interpolation),
+    StringContent(StringContent),
+    StringEnd(StringEnd),
+    StringStart(StringStart),
+}
+struct String {
+    children: std::vec::Vec<StringChild>,
+}
+struct LambdaToken;
+struct ExpressionList {
+    children: std::vec::Vec<Expression>,
+}
+struct SplatPattern {
+    maybe_identifier: std::option::Option<Identifier>,
+}
+struct PercentSignequalsSignToken;
+struct AssertStatement {
+    children: std::vec::Vec<Expression>,
+}
+struct NonlocalToken;
+struct OrToken;
+struct FinallyClause {
+    block: Block,
+}
+struct Attribute {
+    attribute: Identifier,
+    object: PrimaryExpression,
+}
+enum MemberTypeChild { Identifier(Identifier), Type(Type), }
+struct MemberType {
+    children: std::vec::Vec<MemberTypeChild>,
+}
+struct SolidussolidusToken;
+struct EqualsSignToken;
+struct ExceptClause {
+    alias: std::option::Option<Expression>,
+    value: std::option::Option<std::vec::Vec<Expression>>,
+    block: Block,
+}
+struct GreaterThanSignequalsSignToken;
+enum UnaryOperatorChild {
+    PlusSignToken(PlusSignToken),
+    HyphenMinusToken(HyphenMinusToken),
+    TildeToken(TildeToken),
+}
+struct UnaryOperator {
+    operator: UnaryOperatorChild,
+    argument: PrimaryExpression,
+}
+enum BlockChild {
+    _CompoundStatement(_CompoundStatement),
+    _SimpleStatement(_SimpleStatement),
+}
+struct Block {
+    alternative: std::option::Option<std::vec::Vec<CaseClause>>,
+    children: std::option::Option<std::vec::Vec<BlockChild>>,
+}
+struct IfToken;
+struct TypeToken;
+enum DictionaryChild { DictionarySplat(DictionarySplat), Pair(Pair), }
+struct Dictionary {
+    children: std::option::Option<std::vec::Vec<DictionaryChild>>,
+}
+struct PositionalSeparator;
+enum SetChild {
+    Expression(Expression),
+    ListSplat(ListSplat),
+    ParenthesizedListSplat(ParenthesizedListSplat),
+    Yield(Yield),
+}
+struct Set {
+    children: std::vec::Vec<SetChild>,
+}
+enum TuplePatternChild { CasePattern(CasePattern), Pattern(Pattern), }
+struct TuplePattern {
+    children: std::option::Option<std::vec::Vec<TuplePatternChild>>,
+}
+struct ClassToken;
+struct TypedDefaultParameter {}
+struct LeftSquareBracketToken;
+struct TryToken;
+enum DeleteStatementChild {
+    Expression(Expression),
+    ExpressionList(ExpressionList),
+}
+struct DeleteStatement {
+    children: DeleteStatementChild,
+}
+struct AsToken;
+struct PassToken;
+enum ListSplatPatternChild {
+    Attribute(Attribute),
+    Identifier(Identifier),
+    Subscript(Subscript),
+}
+struct ListSplatPattern {
+    children: ListSplatPatternChild,
+}
+enum StringContentChild {
+    EscapeInterpolation(EscapeInterpolation),
+    EscapeSequence(EscapeSequence),
+}
+struct StringContent {
+    children: std::option::Option<std::vec::Vec<StringContentChild>>,
+}
+struct PassStatement;
+struct CommercialAtToken;
+struct SplatType {
+    identifier: Identifier,
+}
+struct PatternList {
+    children: std::vec::Vec<Pattern>,
+}
+enum SubscriptChild { Expression(Expression), Slice(Slice), }
+struct Subscript {
+    subscript: std::vec::Vec<SubscriptChild>,
+    value: PrimaryExpression,
+}
+struct Ellipsis;
+enum ImportStatementChild {
+    AliasedImport(AliasedImport),
+    DottedName(DottedName),
+}
+struct ImportStatement {
+    name: std::vec::Vec<ImportStatementChild>,
+}
+struct True;
+enum AsPatternChild {
+    CasePattern(CasePattern),
+    Expression(Expression),
+    Identifier(Identifier),
+}
+struct AsPattern {
+    alias: std::option::Option<AsPatternTarget>,
+    children: std::vec::Vec<AsPatternChild>,
+}
+enum FormatExpressionChild {
+    Expression(Expression),
+    ExpressionList(ExpressionList),
+    PatternList(PatternList),
+    Yield(Yield),
+}
+struct FormatExpression {
+    format_specifier: std::option::Option<FormatSpecifier>,
+    type_conversion: std::option::Option<TypeConversion>,
+    expression: FormatExpressionChild,
+}
+enum ReturnStatementChild {
+    Expression(Expression),
+    ExpressionList(ExpressionList),
+}
+struct ReturnStatement {
+    children: std::option::Option<ReturnStatementChild>,
+}
+enum ComparisonOperatorChild {
+    ExclamationMarkequalsSignToken(ExclamationMarkequalsSignToken),
+    LessThanSignToken(LessThanSignToken),
+    LessThanSignequalsSignToken(LessThanSignequalsSignToken),
+    LessThanSigngreaterThanSignToken(LessThanSigngreaterThanSignToken),
+    EqualsSignequalsSignToken(EqualsSignequalsSignToken),
+    GreaterThanSignToken(GreaterThanSignToken),
+    GreaterThanSignequalsSignToken(GreaterThanSignequalsSignToken),
+    InToken(InToken),
+    IsToken(IsToken),
+    IsSpacEnotToken(IsSpacEnotToken),
+    NotSpacEinToken(NotSpacEinToken),
+}
+struct ComparisonOperator {
+    operators: std::vec::Vec<ComparisonOperatorChild>,
+    children: std::vec::Vec<PrimaryExpression>,
+}
+struct AmpersandequalsSignToken;
+struct SolidusequalsSignToken;
+struct ElseClause {
+    body: Block,
+}
+struct NotSpacEinToken;
+enum ModuleChild {
+    _CompoundStatement(_CompoundStatement),
+    _SimpleStatement(_SimpleStatement),
+}
+struct Module {
+    children: std::option::Option<std::vec::Vec<ModuleChild>>,
+}
+struct Pair {
+    value: Expression,
+    key: Expression,
+}
+struct SemicolonToken;
+struct RightSquareBracketToken;
+struct ReturnToken;
+struct AwaitToken;
+enum DictionarySplatPatternChild {
+    Attribute(Attribute),
+    Identifier(Identifier),
+    Subscript(Subscript),
+}
+struct DictionarySplatPattern {
+    children: DictionarySplatPatternChild,
+}
+enum IfStatementChild { ElifClause(ElifClause), ElseClause(ElseClause), }
+struct IfStatement {
+    condition: Expression,
+    consequence: Block,
+    alternative: std::option::Option<std::vec::Vec<IfStatementChild>>,
+}
+struct ColonequalsSignToken;
+struct ConstrainedType {
+    children: std::vec::Vec<Type>,
+}
+enum TupleChild {
+    Expression(Expression),
+    ListSplat(ListSplat),
+    ParenthesizedListSplat(ParenthesizedListSplat),
+    Yield(Yield),
+}
+struct Tuple {
+    children: std::option::Option<std::vec::Vec<TupleChild>>,
+}
+struct LeftParenthesisToken;
+struct FromToken;
+struct Integer;
+struct CommercialAtequalsSignToken;
+struct LessThanSignlessThanSignToken;
+struct VerticalLineToken;
+struct EqualsSignequalsSignToken;
+struct ContinueStatement;
+struct UnionType {
+    children: std::vec::Vec<Type>,
+}
+enum DecoratedDefinitionChild {
+    ClassDefinition(ClassDefinition),
+    FunctionDefinition(FunctionDefinition),
+}
+struct DecoratedDefinition {
+    definition: DecoratedDefinitionChild,
+    children: std::vec::Vec<Decorator>,
+}
+struct AmpersandToken;
+struct AsteriskequalsSignToken;
+struct FullStopToken;
+struct LessThanSignlessThanSignequalsSignToken;
+enum ClassPatternChild { CasePattern(CasePattern), DottedName(DottedName), }
+struct ClassPattern {
+    children: std::vec::Vec<ClassPatternChild>,
+}
+struct None;
+struct FormatSpecifier {
+    children: std::option::Option<std::vec::Vec<FormatExpression>>,
+}
+struct CaseToken;
+struct AsteriskasteriskToken;
+struct IsToken;
+enum Parameter {
+    DefaultParameter(DefaultParameter),
+    DictionarySplatPattern(DictionarySplatPattern),
+    Identifier(Identifier),
+    KeywordSeparator(KeywordSeparator),
+    ListSplatPattern(ListSplatPattern),
+    PositionalSeparator(PositionalSeparator),
+    TuplePattern(TuplePattern),
+    TypedDefaultParameter(TypedDefaultParameter),
+    TypedParameter(TypedParameter),
+}
+struct ExceptToken;
+struct FinallyToken;
+struct Identifier;
+struct StringEnd;
+struct PrintStatement {
+    argument: std::option::Option<std::vec::Vec<Expression>>,
+    maybe_chevron: std::option::Option<Chevron>,
+}
+enum ExecStatementChild { Identifier(Identifier), String(String), }
+struct ExecStatement {
+    code: ExecStatementChild,
+    children: std::option::Option<std::vec::Vec<Expression>>,
+}
+struct LessThanSigngreaterThanSignToken;
+enum ForInClauseChild { Pattern(Pattern), PatternList(PatternList), }
+enum ForInClauseChild { CommaToken(CommaToken), Expression(Expression), }
+struct ForInClause {
+    left: ForInClauseChild,
+    right: std::vec::Vec<ForInClauseChild>,
+}
+struct ConditionalExpression {
+    children: std::vec::Vec<Expression>,
+}
+enum FutureImportStatementChild {
+    AliasedImport(AliasedImport),
+    DottedName(DottedName),
+}
+struct FutureImportStatement {
+    name: std::vec::Vec<FutureImportStatementChild>,
+}
+enum PrimaryExpression {
+    Attribute(Attribute),
     Await(Await),
-    ImportToken,
-    LessThanSignlessThanSignToken,
-    PrintToken,
-    WithClause(WithClause),
-    Ellipsis,
-    InToken,
-    AsteriskequalsSignToken,
-    CommercialAtequalsSignToken,
-    CommaToken,
+    BinaryOperator(BinaryOperator),
+    Call(Call),
+    ConcatenatedString(ConcatenatedString),
+    Dictionary(Dictionary),
+    DictionaryComprehension(DictionaryComprehension),
+    Ellipsis(Ellipsis),
+    False(False),
+    Float(Float),
+    GeneratorExpression(GeneratorExpression),
+    Identifier(Identifier),
+    Integer(Integer),
+    List(List),
+    ListComprehension(ListComprehension),
+    ListSplat(ListSplat),
+    None(None),
+    ParenthesizedExpression(ParenthesizedExpression),
+    Set(Set),
+    SetComprehension(SetComprehension),
+    String(String),
+    Subscript(Subscript),
+    True(True),
     Tuple(Tuple),
-    BreakToken,
-    ReturnToken,
-    OrToken,
-    Slice(Slice),
-    WildcardImport,
+    UnaryOperator(UnaryOperator),
 }
-impl std::str::FromStr for PyNodes {
-    type Err = String;
-    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-        match s {
-            "&" => { return std::result::Result::Ok(PyNodes::AmpersandToken) }
-            "/=" => {
-                return std::result::Result::Ok(PyNodes::SolidusequalsSignToken)
-            }
-            "type_conversion" => {
-                return std::result::Result::Ok(PyNodes::TypeConversion)
-            }
-            "%" => {
-                return std::result::Result::Ok(PyNodes::PercentSignToken)
-            }
-            "->" => {
-                return std::result::Result::Ok(PyNodes::HyphenMinusgreaterThanSignToken)
-            }
-            "==" => {
-                return std::result::Result::Ok(PyNodes::EqualsSignequalsSignToken)
-            }
-            "!=" => {
-                return std::result::Result::Ok(PyNodes::ExclamationMarkequalsSignToken)
-            }
-            "while" => { return std::result::Result::Ok(PyNodes::WhileToken) }
-            "<=" => {
-                return std::result::Result::Ok(PyNodes::LessThanSignequalsSignToken)
-            }
-            "<" => {
-                return std::result::Result::Ok(PyNodes::LessThanSignToken)
-            }
-            "pass" => { return std::result::Result::Ok(PyNodes::PassToken) }
-            "&=" => {
-                return std::result::Result::Ok(PyNodes::AmpersandequalsSignToken)
-            }
-            "binary_operator" => {
-                return std::result::Result::Ok(PyNodes::BinaryOperator)
-            }
-            "as" => { return std::result::Result::Ok(PyNodes::AsToken) }
-            "**" => {
-                return std::result::Result::Ok(PyNodes::AsteriskasteriskToken)
-            }
-            "*" => { return std::result::Result::Ok(PyNodes::AsteriskToken) }
-            "__future__" => {
-                return std::result::Result::Ok(PyNodes::_FutureToken)
-            }
-            "for" => { return std::result::Result::Ok(PyNodes::ForToken) }
-            "elif" => { return std::result::Result::Ok(PyNodes::ElifToken) }
-            "from" => { return std::result::Result::Ok(PyNodes::FromToken) }
-            "~" => { return std::result::Result::Ok(PyNodes::TildeToken) }
-            "def" => { return std::result::Result::Ok(PyNodes::DefToken) }
-            "global" => {
-                return std::result::Result::Ok(PyNodes::GlobalToken)
-            }
-            "comment" => { return std::result::Result::Ok(PyNodes::Comment) }
-            "{" => {
-                return std::result::Result::Ok(PyNodes::LeftCurlyBracketToken)
-            }
-            "(" => {
-                return std::result::Result::Ok(PyNodes::LeftParenthesisToken)
-            }
-            "else" => { return std::result::Result::Ok(PyNodes::ElseToken) }
-            "raise" => { return std::result::Result::Ok(PyNodes::RaiseToken) }
-            "try" => { return std::result::Result::Ok(PyNodes::TryToken) }
-            "//" => {
-                return std::result::Result::Ok(PyNodes::SolidussolidusToken)
-            }
-            ">" => {
-                return std::result::Result::Ok(PyNodes::GreaterThanSignToken)
-            }
-            "nonlocal" => {
-                return std::result::Result::Ok(PyNodes::NonlocalToken)
-            }
-            "%=" => {
-                return std::result::Result::Ok(PyNodes::PercentSignequalsSignToken)
-            }
-            "<>" => {
-                return std::result::Result::Ok(PyNodes::LessThanSigngreaterThanSignToken)
-            }
-            ";" => { return std::result::Result::Ok(PyNodes::SemicolonToken) }
-            "+=" => {
-                return std::result::Result::Ok(PyNodes::PlusSignequalsSignToken)
-            }
-            "del" => { return std::result::Result::Ok(PyNodes::DelToken) }
-            "is" => { return std::result::Result::Ok(PyNodes::IsToken) }
-            "|" => {
-                return std::result::Result::Ok(PyNodes::VerticalLineToken)
-            }
-            "}" => {
-                return std::result::Result::Ok(PyNodes::RightCurlyBracketToken)
-            }
-            "^=" => {
-                return std::result::Result::Ok(PyNodes::CircumflexAccentequalsSignToken)
-            }
-            "finally" => {
-                return std::result::Result::Ok(PyNodes::FinallyToken)
-            }
-            "." => { return std::result::Result::Ok(PyNodes::FullStopToken) }
-            "aliased_import" => {
-                return std::result::Result::Ok(PyNodes::AliasedImport)
-            }
-            "@" => {
-                return std::result::Result::Ok(PyNodes::CommercialAtToken)
-            }
-            ":" => { return std::result::Result::Ok(PyNodes::ColonToken) }
-            "**=" => {
-                return std::result::Result::Ok(PyNodes::AsteriskasteriskequalsSignToken)
-            }
-            "except" => {
-                return std::result::Result::Ok(PyNodes::ExceptToken)
-            }
-            "]" => {
-                return std::result::Result::Ok(PyNodes::RightSquareBracketToken)
-            }
-            "/" => { return std::result::Result::Ok(PyNodes::SolidusToken) }
-            ">=" => {
-                return std::result::Result::Ok(PyNodes::GreaterThanSignequalsSignToken)
-            }
-            "call" => { return std::result::Result::Ok(PyNodes::Call) }
-            "-=" => {
-                return std::result::Result::Ok(PyNodes::HyphenMinusequalsSignToken)
-            }
-            "and" => { return std::result::Result::Ok(PyNodes::AndToken) }
-            "async" => { return std::result::Result::Ok(PyNodes::AsyncToken) }
-            "with" => { return std::result::Result::Ok(PyNodes::WithToken) }
-            ">>" => {
-                return std::result::Result::Ok(PyNodes::GreaterThanSigngreaterThanSignToken)
-            }
-            "elif_clause" => {
-                return std::result::Result::Ok(PyNodes::ElifClause)
-            }
-            "=" => {
-                return std::result::Result::Ok(PyNodes::EqualsSignToken)
-            }
-            "\\" => {
-                return std::result::Result::Ok(PyNodes::ReverseSolidusToken)
-            }
-            "assert" => {
-                return std::result::Result::Ok(PyNodes::AssertToken)
-            }
-            "//=" => {
-                return std::result::Result::Ok(PyNodes::SolidussolidusequalsSignToken)
-            }
-            "_" => { return std::result::Result::Ok(PyNodes::_Token) }
-            "+" => { return std::result::Result::Ok(PyNodes::PlusSignToken) }
-            "if" => { return std::result::Result::Ok(PyNodes::IfToken) }
-            "augmented_assignment" => {
-                return std::result::Result::Ok(PyNodes::AugmentedAssignment)
-            }
-            "case" => { return std::result::Result::Ok(PyNodes::CaseToken) }
-            "-" => {
-                return std::result::Result::Ok(PyNodes::HyphenMinusToken)
-            }
-            "class" => { return std::result::Result::Ok(PyNodes::ClassToken) }
-            ")" => {
-                return std::result::Result::Ok(PyNodes::RightParenthesisToken)
-            }
-            ">>=" => {
-                return std::result::Result::Ok(PyNodes::GreaterThanSigngreaterThanSignequalsSignToken)
-            }
-            "line_continuation" => {
-                return std::result::Result::Ok(PyNodes::LineContinuation)
-            }
-            "unary_operator" => {
-                return std::result::Result::Ok(PyNodes::UnaryOperator)
-            }
-            "assignment" => {
-                return std::result::Result::Ok(PyNodes::Assignment)
-            }
-            "|=" => {
-                return std::result::Result::Ok(PyNodes::VerticalLineequalsSignToken)
-            }
-            "<<=" => {
-                return std::result::Result::Ok(PyNodes::LessThanSignlessThanSignequalsSignToken)
-            }
-            ":=" => {
-                return std::result::Result::Ok(PyNodes::ColonequalsSignToken)
-            }
-            "^" => {
-                return std::result::Result::Ok(PyNodes::CircumflexAccentToken)
-            }
-            "exec" => { return std::result::Result::Ok(PyNodes::ExecToken) }
-            "match" => { return std::result::Result::Ok(PyNodes::MatchToken) }
-            "not" => { return std::result::Result::Ok(PyNodes::NotToken) }
-            "not in" => {
-                return std::result::Result::Ok(PyNodes::NotSpacEinToken)
-            }
-            "continue" => {
-                return std::result::Result::Ok(PyNodes::ContinueToken)
-            }
-            "is not" => {
-                return std::result::Result::Ok(PyNodes::IsSpacEnotToken)
-            }
-            "else_clause" => {
-                return std::result::Result::Ok(PyNodes::ElseClause)
-            }
-            "[" => {
-                return std::result::Result::Ok(PyNodes::LeftSquareBracketToken)
-            }
-            "import" => {
-                return std::result::Result::Ok(PyNodes::ImportToken)
-            }
-            "<<" => {
-                return std::result::Result::Ok(PyNodes::LessThanSignlessThanSignToken)
-            }
-            "print" => { return std::result::Result::Ok(PyNodes::PrintToken) }
-            "ellipsis" => {
-                return std::result::Result::Ok(PyNodes::Ellipsis)
-            }
-            "in" => { return std::result::Result::Ok(PyNodes::InToken) }
-            "*=" => {
-                return std::result::Result::Ok(PyNodes::AsteriskequalsSignToken)
-            }
-            "@=" => {
-                return std::result::Result::Ok(PyNodes::CommercialAtequalsSignToken)
-            }
-            "," => { return std::result::Result::Ok(PyNodes::CommaToken) }
-            "break" => { return std::result::Result::Ok(PyNodes::BreakToken) }
-            "return" => {
-                return std::result::Result::Ok(PyNodes::ReturnToken)
-            }
-            "or" => { return std::result::Result::Ok(PyNodes::OrToken) }
-            "wildcard_import" => {
-                return std::result::Result::Ok(PyNodes::WildcardImport)
-            }
-            err => {
+struct PrintToken;
+enum RaiseStatementChild {
+    Expression(Expression),
+    ExpressionList(ExpressionList),
+}
+struct RaiseStatement {
+    cause: std::option::Option<Expression>,
+    children: std::option::Option<RaiseStatementChild>,
+}
+struct AndToken;
+struct ElifClause {
+    consequence: Block,
+    condition: Expression,
+}
+enum AssignmentChild {
+    Assignment(Assignment),
+    AugmentedAssignment(AugmentedAssignment),
+    Expression(Expression),
+    ExpressionList(ExpressionList),
+    PatternList(PatternList),
+    Yield(Yield),
+}
+enum AssignmentChild { Pattern(Pattern), PatternList(PatternList), }
+struct Assignment {
+    right: std::option::Option<AssignmentChild>,
+    left: AssignmentChild,
+}
+enum RelativeImportChild {
+    DottedName(DottedName),
+    ImportPrefix(ImportPrefix),
+}
+struct RelativeImport {
+    children: std::vec::Vec<RelativeImportChild>,
+}
+enum Pattern {
+    Attribute(Attribute),
+    Identifier(Identifier),
+    ListPattern(ListPattern),
+    ListSplatPattern(ListSplatPattern),
+    Subscript(Subscript),
+    TuplePattern(TuplePattern),
+}
+struct DottedName {
+    children: std::vec::Vec<Identifier>,
+}
+struct LambdaParameters {
+    children: std::vec::Vec<Parameter>,
+}
+struct Parameters {
+    children: std::option::Option<std::vec::Vec<Parameter>>,
+}
+enum YieldChild { Expression(Expression), ExpressionList(ExpressionList), }
+struct Yield {
+    children: std::option::Option<YieldChild>,
+}
+struct _Token;
 
 
-                {
-                    ::core::panicking::panic_fmt(format_args!("Unknown token name: \'{0}\'",
-                            err));
-                }
-            }
-        }
-    }
-}
-impl std::fmt::Display for PyNodes {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::AmpersandToken => { f.write_fmt(format_args!("&")) }
-            Self::SolidusequalsSignToken => {
-                f.write_fmt(format_args!("/="))
-            }
-            Self::TypeConversion => {
-                f.write_fmt(format_args!("type_conversion"))
-            }
-            Self::PercentSignToken => { f.write_fmt(format_args!("%")) }
-            Self::HyphenMinusgreaterThanSignToken => {
-                f.write_fmt(format_args!("->"))
-            }
-            Self::EqualsSignequalsSignToken => {
-                f.write_fmt(format_args!("=="))
-            }
-            Self::ExclamationMarkequalsSignToken => {
-                f.write_fmt(format_args!("!="))
-            }
-            Self::WhileToken => { f.write_fmt(format_args!("while")) }
-            Self::LessThanSignequalsSignToken => {
-                f.write_fmt(format_args!("<="))
-            }
-            Self::LessThanSignToken => { f.write_fmt(format_args!("<")) }
-            Self::PassToken => { f.write_fmt(format_args!("pass")) }
-            Self::AmpersandequalsSignToken => {
-                f.write_fmt(format_args!("&="))
-            }
-            Self::BinaryOperator => {
-                f.write_fmt(format_args!("binary_operator"))
-            }
-            Self::AsToken => { f.write_fmt(format_args!("as")) }
-            Self::AsteriskasteriskToken => { f.write_fmt(format_args!("**")) }
-            Self::AsteriskToken => { f.write_fmt(format_args!("*")) }
-            Self::_FutureToken => { f.write_fmt(format_args!("__future__")) }
-            Self::ForToken => { f.write_fmt(format_args!("for")) }
-            Self::ElifToken => { f.write_fmt(format_args!("elif")) }
-            Self::FromToken => { f.write_fmt(format_args!("from")) }
-            Self::TildeToken => { f.write_fmt(format_args!("~")) }
-            Self::DefToken => { f.write_fmt(format_args!("def")) }
-            Self::GlobalToken => { f.write_fmt(format_args!("global")) }
-            Self::Comment => { f.write_fmt(format_args!("comment")) }
-            Self::LeftCurlyBracketToken => { f.write_fmt(format_args!("{{")) }
-            Self::LeftParenthesisToken => { f.write_fmt(format_args!("(")) }
-            Self::ElseToken => { f.write_fmt(format_args!("else")) }
-            Self::RaiseToken => { f.write_fmt(format_args!("raise")) }
-            Self::TryToken => { f.write_fmt(format_args!("try")) }
-            Self::SolidussolidusToken => { f.write_fmt(format_args!("//")) }
-            Self::GreaterThanSignToken => { f.write_fmt(format_args!(">")) }
-            Self::NonlocalToken => { f.write_fmt(format_args!("nonlocal")) }
-            Self::PercentSignequalsSignToken => {
-                f.write_fmt(format_args!("%="))
-            }
-            Self::LessThanSigngreaterThanSignToken => {
-                f.write_fmt(format_args!("<>"))
-            }
-            Self::SemicolonToken => { f.write_fmt(format_args!(";")) }
-            Self::PlusSignequalsSignToken => {
-                f.write_fmt(format_args!("+="))
-            }
-            Self::DelToken => { f.write_fmt(format_args!("del")) }
-            Self::IsToken => { f.write_fmt(format_args!("is")) }
-            Self::VerticalLineToken => { f.write_fmt(format_args!("|")) }
-            Self::RightCurlyBracketToken => {
-                f.write_fmt(format_args!("}}"))
-            }
-            Self::CircumflexAccentequalsSignToken => {
-                f.write_fmt(format_args!("^="))
-            }
-            Self::FinallyToken => { f.write_fmt(format_args!("finally")) }
-            Self::FullStopToken => { f.write_fmt(format_args!(".")) }
-            Self::AliasedImport => {
-                f.write_fmt(format_args!("aliased_import"))
-            }
-            Self::CommercialAtToken => { f.write_fmt(format_args!("@")) }
-            Self::ColonToken => { f.write_fmt(format_args!(":")) }
-            Self::AsteriskasteriskequalsSignToken => {
-                f.write_fmt(format_args!("**="))
-            }
-            Self::ExceptToken => { f.write_fmt(format_args!("except")) }
-            Self::RightSquareBracketToken => {
-                f.write_fmt(format_args!("]"))
-            }
-            Self::SolidusToken => { f.write_fmt(format_args!("/")) }
-            Self::GreaterThanSignequalsSignToken => {
-                f.write_fmt(format_args!(">="))
-            }
-            Self::Call => { f.write_fmt(format_args!("call")) }
-            Self::HyphenMinusequalsSignToken => {
-                f.write_fmt(format_args!("-="))
-            }
-            Self::AndToken => { f.write_fmt(format_args!("and")) }
-            Self::AsyncToken => { f.write_fmt(format_args!("async")) }
-            Self::WithToken => { f.write_fmt(format_args!("with")) }
-            Self::GreaterThanSigngreaterThanSignToken => {
-                f.write_fmt(format_args!(">>"))
-            }
-            Self::ElifClause => { f.write_fmt(format_args!("elif_clause")) }
-            Self::EqualsSignToken => { f.write_fmt(format_args!("=")) }
-            Self::ReverseSolidusToken => { f.write_fmt(format_args!("\\")) }
-            Self::AssertToken => { f.write_fmt(format_args!("assert")) }
-            Self::SolidussolidusequalsSignToken => {
-                f.write_fmt(format_args!("//="))
-            }
-            Self::_Token => { f.write_fmt(format_args!("_")) }
-            Self::PlusSignToken => { f.write_fmt(format_args!("+")) }
-            Self::IfToken => { f.write_fmt(format_args!("if")) }
-            Self::AugmentedAssignment => {
-                f.write_fmt(format_args!("augmented_assignment"))
-            }
-            Self::CaseToken => { f.write_fmt(format_args!("case")) }
-            Self::HyphenMinusToken => { f.write_fmt(format_args!("-")) }
-            Self::ClassToken => { f.write_fmt(format_args!("class")) }
-            Self::RightParenthesisToken => { f.write_fmt(format_args!(")")) }
-            Self::GreaterThanSigngreaterThanSignequalsSignToken => {
-                f.write_fmt(format_args!(">>="))
-            }
-            Self::LineContinuation => {
-                f.write_fmt(format_args!("line_continuation"))
-            }
-            Self::UnaryOperator => {
-                f.write_fmt(format_args!("unary_operator"))
-            }
-            Self::Assignment => { f.write_fmt(format_args!("assignment")) }
-            Self::VerticalLineequalsSignToken => {
-                f.write_fmt(format_args!("|="))
-            }
-            Self::LessThanSignlessThanSignequalsSignToken => {
-                f.write_fmt(format_args!("<<="))
-            }
-            Self::ColonequalsSignToken => { f.write_fmt(format_args!(":=")) }
-            Self::CircumflexAccentToken => { f.write_fmt(format_args!("^")) }
-            Self::ExecToken => { f.write_fmt(format_args!("exec")) }
-            Self::MatchToken => { f.write_fmt(format_args!("match")) }
-            Self::NotToken => { f.write_fmt(format_args!("not")) }
-            Self::NotSpacEinToken => { f.write_fmt(format_args!("not in")) }
-            Self::ContinueToken => { f.write_fmt(format_args!("continue")) }
-            Self::IsSpacEnotToken => { f.write_fmt(format_args!("is not")) }
-            Self::ElseClause => { f.write_fmt(format_args!("else_clause")) }
-            Self::LeftSquareBracketToken => { f.write_fmt(format_args!("[")) }
-            Self::ImportToken => { f.write_fmt(format_args!("import")) }
-            Self::LessThanSignlessThanSignToken => {
-                f.write_fmt(format_args!("<<"))
-            }
-            Self::PrintToken => { f.write_fmt(format_args!("print")) }
-            Self::Ellipsis => { f.write_fmt(format_args!("ellipsis")) }
-            Self::InToken => { f.write_fmt(format_args!("in")) }
-            Self::AsteriskequalsSignToken => {
-                f.write_fmt(format_args!("*="))
-            }
-            Self::CommercialAtequalsSignToken => {
-                f.write_fmt(format_args!("@="))
-            }
-            Self::CommaToken => { f.write_fmt(format_args!(",")) }
-            Self::BreakToken => { f.write_fmt(format_args!("break")) }
-            Self::ReturnToken => { f.write_fmt(format_args!("return")) }
-            Self::OrToken => { f.write_fmt(format_args!("or")) }
-            Self::WildcardImport => {
-                f.write_fmt(format_args!("wildcard_import"))
-            }
-        }
-    }
-}

@@ -2,7 +2,6 @@ use serde::{Deserialize, Serialize};
 use tss_macros::generate_nodes;
 
 #[generate_nodes(tree_sitter_python)]
-// #[derive(Debug, Clone)]
 enum PyNodes {}
 
 #[cfg(test)]
