@@ -40,7 +40,7 @@ assert_eq!(node_type.to_string(), "function_item");
 The `generate_nodes` macro reads `src/node-types.json`, which is found in every `tree-sitter-*` crate. This file describes all the possible nodes that the parser can create, and their relationship to each other.
 
 During expansion, these nodes are translated into:
-- *Many* enums and structs enum representing all node types
+- *Many* enums and structs representing all node types. These new types maintain the visibility and attributes of the parent node.
 - `FromStr` implementation for parsing node type strings into type-safe representations
 - `Display` implementation for converting back to strings
 

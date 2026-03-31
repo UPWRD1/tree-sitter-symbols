@@ -10,7 +10,7 @@ mod parse;
 mod schema;
 
 pub fn macro_impl(
-    crate_name: syn::Ident,
+    crate_name: &syn::Ident,
     input: proc_macro2::TokenStream,
 ) -> proc_macro2::TokenStream {
     // Parse input struct and handle parse errors
@@ -26,7 +26,7 @@ pub fn macro_impl(
     let mut analysis: HashSet<NamedNodeType> = HashSet::default();
     // Check if the enum has ANY variants
     let accum = if the_enum.variants.is_empty() {
-        generate_types(crate_name, the_enum, &mut analysis)
+        generate_types(crate_name, &the_enum, &mut analysis)
     } else {
         quote! {
             compile_error!("This macro only operates on enums with no variants");
@@ -50,8 +50,8 @@ pub fn macro_impl(
 }
 
 fn generate_types(
-    crate_name: syn::Ident,
-    base_enum: syn::ItemEnum,
+    crate_name: &syn::Ident,
+    base_enum: &syn::ItemEnum,
     analysis: &mut HashSet<NamedNodeType>,
 ) -> proc_macro2::TokenStream {
     let mut root_enum = base_enum.clone();
@@ -71,31 +71,33 @@ fn generate_types(
 
     let mut seen: HashSet<syn::Ident> = HashSet::default();
 
-    let items: Vec<proc_macro2::TokenStream> = analysis
-        .iter()
-        .map(|element| {
-            dbg!(&element);
-            seen.insert(element.rustified_name.clone());
-            let newtype = match &element.class {
-                schema::NodeClass::Terminal => generate::terminal(&mut root_enum, element),
-                schema::NodeClass::FieldsOnly { fields } => {
-                    generate::fields_only(&mut root_enum, element, fields)
-                }
-                schema::NodeClass::FieldsAndChildren { fields, children } => {
-                    generate::fields_and_children(&mut root_enum, element, fields, children)
-                }
-                schema::NodeClass::ChildrenOnly { children } => {
-                    generate::children_only(&mut root_enum, element, children)
-                }
-                schema::NodeClass::SuperType { subtypes } => {
-                    generate::supertype_enum(&mut root_enum, element, subtypes)
-                }
-            };
-            quote! {
-                #newtype
+    let mut items: HashSet<syn::Item> = HashSet::default();
+    for element in analysis.iter() {
+        // dbg!(&element);
+        seen.insert(element.rustified_name.clone());
+        match &element.class {
+            schema::NodeClass::Terminal => generate::terminal(&mut items, &root_enum, element),
+            schema::NodeClass::FieldsOnly { fields } => {
+                generate::fields_only(&mut items, &mut root_enum, element, fields);
             }
-        })
-        .collect();
+            schema::NodeClass::FieldsAndChildren { fields, children } => {
+                generate::fields_and_children(
+                    &mut items,
+                    &mut root_enum,
+                    element,
+                    fields,
+                    children,
+                );
+            }
+            schema::NodeClass::ChildrenOnly { children } => {
+                generate::children_only(&mut items, &mut root_enum, element, children);
+            }
+            schema::NodeClass::SuperType { subtypes } => {
+                generate::supertype_enum(&mut items, &root_enum, element, subtypes);
+            }
+        }
+    }
+    let items: Vec<_> = items.into_iter().collect();
     quote! {
         #(#items)*
     }

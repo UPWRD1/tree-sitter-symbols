@@ -45,7 +45,7 @@ fn build_variants(node_types: &[NodeType]) -> HashSet<NamedNodeType> {
                 return None;
             }
 
-            let named_node = original.name(variant_name);
+            let named_node = original.name(&variant_name);
             Some(named_node)
         })
         .collect()
@@ -58,16 +58,16 @@ pub fn mangle_node_name(is_named: bool, original_name: &str) -> String {
         .enumerate()
         .map(|(i, c)| {
             if i == 0 {
-                if !(c.is_alphabetic() || c == '_') {
-                    unicode_names2::name(c).unwrap().to_string()
-                } else {
+                if c.is_alphabetic() || c == '_' {
                     c.to_string()
+                } else {
+                    unicode_names2::name(c).unwrap().to_string()
                 }
             } else {
-                if !(c.is_alphanumeric() || c == '_') {
-                    unicode_names2::name(c).unwrap().to_string()
-                } else {
+                if c.is_alphanumeric() || c == '_' {
                     c.to_string()
+                } else {
+                    unicode_names2::name(c).unwrap().to_string()
                 }
             }
         })
@@ -77,17 +77,15 @@ pub fn mangle_node_name(is_named: bool, original_name: &str) -> String {
         Ok(_) => {
             if !is_named {
                 name.push_str("Token");
-                name
-            } else {
-                name
             }
+            name
         }
-        Err(_) => format!("{}Token", name),
+        Err(_) => format!("{name}Token"),
     };
     // Add suffix for unnamed nodes to distinguish them
 
     if original_name.starts_with('_') {
-        name = format!("_{name}")
+        name = format!("_{name}");
     }
 
     name.clone()

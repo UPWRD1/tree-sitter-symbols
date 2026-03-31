@@ -7,9 +7,10 @@ use crate::macro_impl::schema::{ChildrenClass, NamedNodeType, NamedSubtype};
 use quote::{format_ident, quote};
 
 pub fn terminal(
-    root_enum: &mut syn::ItemEnum,
+    item_accumulator: &mut HashSet<syn::Item>,
+    root_enum: &syn::ItemEnum,
     element: &NamedNodeType,
-) -> proc_macro2::TokenStream {
+) {
     let terminal_struct = syn::ItemStruct {
         attrs: root_enum.attrs.clone(),
         vis: root_enum.vis.clone(),
@@ -24,14 +25,15 @@ pub fn terminal(
         fields: syn::Fields::Unit,
         semi_token: Some(Token![;](Span::mixed_site())),
     };
-    quote! {#terminal_struct}
+    item_accumulator.insert(syn::Item::Struct(terminal_struct));
 }
 
 pub fn supertype_enum(
-    root_enum: &mut syn::ItemEnum,
+    item_accumulator: &mut HashSet<syn::Item>,
+    root_enum: &syn::ItemEnum,
     element: &NamedNodeType,
     subtypes: &[NamedSubtype],
-) -> proc_macro2::TokenStream {
+) {
     let supertype_ident = &element.rustified_name;
     let mut supertype_enum = syn::ItemEnum {
         attrs: root_enum.attrs.clone(),
@@ -55,26 +57,27 @@ pub fn supertype_enum(
             attrs: vec![],
             fields: syn::Fields::Unnamed(syn::parse_quote! {(#subtype_ident)}),
             discriminant: None, //TODO Consider investigating if this can be the tree-sitter node ID
-        })
+        });
     }
-    quote! {#supertype_enum}
+    item_accumulator.insert(syn::Item::Enum(supertype_enum));
 }
 
 pub fn fields_and_children(
+    item_accumulator: &mut HashSet<syn::Item>,
     root_enum: &mut syn::ItemEnum,
     element: &NamedNodeType,
     fields: &[(String, ChildrenClass)],
     children_class: &ChildrenClass,
-) -> proc_macro2::TokenStream {
+) {
     let element_ident = &element.rustified_name;
     let children_enum_ident = format_ident!("{}Child", element_ident);
 
-    let mut potential_items: Vec<syn::Item> = vec![];
     // let mut potential_children_item: Option<syn::Item> = None;
 
     let mut punct_fields: Punctuated<syn::Field, Token![,]> = Punctuated::new();
 
     for (field_name, field_children) in fields {
+        let field_child_ident = format_ident!("{}{}", element_ident, field_name);
         let the_field = syn::Field {
             attrs: vec![],
             vis: syn::Visibility::Inherited,
@@ -83,8 +86,8 @@ pub fn fields_and_children(
             colon_token: Some(Token![:](Span::mixed_site())),
             ty: syn::Type::Verbatim(field_children.to_type(
                 root_enum,
-                &children_enum_ident,
-                &mut potential_items,
+                &field_child_ident,
+                item_accumulator,
             )),
         };
         punct_fields.push(the_field);
@@ -109,7 +112,7 @@ pub fn fields_and_children(
             ty: syn::Type::Verbatim(children_class.to_type(
                 root_enum,
                 &children_enum_ident,
-                &mut potential_items,
+                item_accumulator,
             )),
         };
         punct_fields.push(child_field);
@@ -133,11 +136,7 @@ pub fn fields_and_children(
         semi_token: Some(Token![;](Span::mixed_site())),
     };
 
-    quote! {
-        #(#potential_items)*
-
-        #element_struct
-    }
+    item_accumulator.insert(syn::Item::Struct(element_struct));
 }
 
 pub fn fields_only(
@@ -163,7 +162,7 @@ pub fn fields_only(
             ty: syn::Type::Verbatim(field_children.to_type(
                 root_enum,
                 &children_enum_ident,
-                &mut item_accumulator,
+                item_accumulator,
             )),
         };
         punct_fields.push(the_field);
@@ -191,15 +190,13 @@ pub fn fields_only(
 }
 
 pub fn children_only(
+    item_accumulator: &mut HashSet<syn::Item>,
     root_enum: &mut syn::ItemEnum,
     element: &NamedNodeType,
     children_class: &ChildrenClass,
-) -> proc_macro2::TokenStream {
+) {
     let element_ident = &element.rustified_name;
     let children_enum_ident = format_ident!("{}Child", element_ident);
-
-    let mut potential_items: Vec<syn::Item> = vec![];
-    // let mut potential_children_item: Option<syn::Item> = None;
 
     let mut punct_fields: Punctuated<syn::Field, Token![,]> = Punctuated::new();
 
@@ -222,7 +219,7 @@ pub fn children_only(
             ty: syn::Type::Verbatim(children_class.to_type(
                 root_enum,
                 &children_enum_ident,
-                &mut potential_items,
+                item_accumulator,
             )),
         };
         punct_fields.push(child_field);
@@ -245,12 +242,7 @@ pub fn children_only(
         }),
         semi_token: Some(Token![;](Span::mixed_site())),
     };
-
-    quote! {
-        #(#potential_items)*
-
-        #element_struct
-    }
+    item_accumulator.insert(syn::Item::Struct(element_struct));
 }
 
 impl ChildrenClass {
@@ -258,7 +250,7 @@ impl ChildrenClass {
         &self,
         root_enum: &mut syn::ItemEnum,
         children_enum_ident: &syn::Ident,
-        potential_field_items: &mut Vec<syn::Item>,
+        item_accumulator: &mut HashSet<syn::Item>,
     ) -> proc_macro2::TokenStream {
         match self {
             ChildrenClass::Single(child) => {
@@ -270,21 +262,11 @@ impl ChildrenClass {
                 quote! {std::option::Option<#ident>}
             }
             ChildrenClass::Choice(children) => {
-                children_choice(
-                    root_enum,
-                    children_enum_ident,
-                    potential_field_items,
-                    children,
-                );
+                children_choice(item_accumulator, root_enum, children_enum_ident, children);
                 quote! {#children_enum_ident}
             }
             ChildrenClass::MaybeChoice(children) => {
-                children_choice(
-                    root_enum,
-                    children_enum_ident,
-                    potential_field_items,
-                    children,
-                );
+                children_choice(item_accumulator, root_enum, children_enum_ident, children);
                 quote! {std::option::Option<#children_enum_ident>}
             }
             ChildrenClass::Repeated(child) => {
@@ -296,21 +278,11 @@ impl ChildrenClass {
                 quote! {std::option::Option<std::vec::Vec<#ident>>}
             }
             ChildrenClass::List(children) => {
-                children_choice(
-                    root_enum,
-                    children_enum_ident,
-                    potential_field_items,
-                    children,
-                );
+                children_choice(item_accumulator, root_enum, children_enum_ident, children);
                 quote! {std::vec::Vec<#children_enum_ident>}
             }
             ChildrenClass::MaybeList(children) => {
-                children_choice(
-                    root_enum,
-                    children_enum_ident,
-                    potential_field_items,
-                    children,
-                );
+                children_choice(item_accumulator, root_enum, children_enum_ident, children);
                 quote! {std::option::Option<std::vec::Vec<#children_enum_ident>>}
             }
         }
@@ -318,9 +290,9 @@ impl ChildrenClass {
 }
 
 fn children_choice(
-    root_enum: &mut syn::ItemEnum,
+    item_accumulator: &mut HashSet<syn::Item>,
+    root_enum: &syn::ItemEnum,
     children_enum_ident: &syn::Ident,
-    item_accumulator: &mut Vec<syn::Item>,
     children: &Vec<NamedSubtype>,
 ) {
     let mut children_enum = syn::ItemEnum {
@@ -347,5 +319,5 @@ fn children_choice(
         };
         children_enum.variants.push(child_variant);
     }
-    item_accumulator.push(syn::Item::Enum(children_enum));
+    item_accumulator.insert(syn::Item::Enum(children_enum));
 }

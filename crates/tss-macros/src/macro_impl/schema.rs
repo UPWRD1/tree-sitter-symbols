@@ -82,7 +82,7 @@ impl NodeType {
         match (self.children, self.fields, self.subtypes) {
             (None, None, None) => NodeClass::Terminal,
             (None, None, Some(subtypes)) => NodeClass::SuperType {
-                subtypes: subtypes.into_iter().map(|c| c.name()).collect(),
+                subtypes: subtypes.into_iter().map(Subtype::name).collect(),
             },
             (None, Some(fields), None) if fields.is_empty() => NodeClass::Terminal,
             (None, Some(fields), None) => NodeClass::FieldsOnly {
@@ -103,14 +103,14 @@ impl NodeType {
             n => panic!("Invalid node: {n:?}"),
         }
     }
-    pub fn name(mut self, name: String) -> NamedNodeType {
+    pub fn name(mut self, name: &str) -> NamedNodeType {
         let node_type_name = std::mem::take(&mut self.node_type_name);
         let named = self.named;
         let class = self.class();
         NamedNodeType {
             named,
             node_type_name,
-            rustified_name: syn::Ident::new(&name, Span::mixed_site()),
+            rustified_name: syn::Ident::new(name, Span::mixed_site()),
             class,
         }
     }
@@ -136,12 +136,12 @@ impl Children {
 
             // multiple == false; required = true; len > 1
             (false, true, _) => {
-                ChildrenClass::Choice(self.types.into_iter().map(|t| t.name()).collect())
+                ChildrenClass::Choice(self.types.into_iter().map(Subtype::name).collect())
             }
 
             // multiple == false; required = false; len > 1
             (false, false, _) => {
-                ChildrenClass::MaybeChoice(self.types.into_iter().map(|t| t.name()).collect())
+                ChildrenClass::MaybeChoice(self.types.into_iter().map(Subtype::name).collect())
             }
 
             // multiple == true; required == true; len == 1
@@ -154,12 +154,12 @@ impl Children {
 
             // multiple == true; required = true; len > 1
             (true, true, _) => {
-                ChildrenClass::List(self.types.into_iter().map(|t| t.name()).collect())
+                ChildrenClass::List(self.types.into_iter().map(Subtype::name).collect())
             }
 
             // multiple == true; required = false; len > 1
             (true, false, _) => {
-                ChildrenClass::MaybeList(self.types.into_iter().map(|t| t.name()).collect())
+                ChildrenClass::MaybeList(self.types.into_iter().map(Subtype::name).collect())
             }
         }
     }

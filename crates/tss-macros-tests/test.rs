@@ -2,887 +2,1236 @@
 extern crate std;
 #[prelude_import]
 use std::prelude::rust_2021::*;
-use serde::{Deserialize, Serialize};
 use tss_macros::generate_nodes;
 
-struct Decorator {
-    expression: Expression,
+struct DynamicType {}
+struct NeverType;
+enum FunctionItemChild {
+    FunctionModifiers(FunctionModifiers),
+    VisibilityModifier(VisibilityModifier),
+    WhereClause(WhereClause),
 }
-enum ListPatternChild { CasePattern(CasePattern), Pattern(Pattern), }
-struct ListPattern {
-    children: std::option::Option<std::vec::Vec<ListPatternChild>>,
+struct ImplItem {
+    type_parameters: std::option::Option<TypeParameters>,
 }
-struct DictionarySplat {
-    expression: Expression,
+struct UnitType;
+struct TokenTree {
+    children: std::option::Option<std::vec::Vec<TokenTreeChild>>,
 }
-struct ExclamationMarkequalsSignToken;
-struct NamedExpression {
-    value: Expression,
+enum UnionItemChild {
+    VisibilityModifier(VisibilityModifier),
+    WhereClause(WhereClause),
+}
+enum StructItemChild {
+    VisibilityModifier(VisibilityModifier),
+    WhereClause(WhereClause),
+}
+struct MacroDefinition {
     name: Identifier,
+    children: std::option::Option<std::vec::Vec<MacroRule>>,
 }
-struct ExecToken;
-struct WhileToken;
-struct VerticalLineequalsSignToken;
-struct SolidussolidusequalsSignToken;
-struct TildeToken;
-struct HyphenMinusToken;
-enum ParenthesizedExpressionChild {
-    Expression(Expression),
-    ListSplat(ListSplat),
-    ParenthesizedExpression(ParenthesizedExpression),
-    Yield(Yield),
+enum MatchPatterncondition {
+    _Expression(_Expression),
+    LetChain(LetChain),
+    LetCondition(LetCondition),
 }
-struct ParenthesizedExpression {
-    children: ParenthesizedExpressionChild,
+struct TupleStructPattern {}
+struct RightSquareBracketToken;
+struct LeftSquareBracketToken;
+struct ForLifetimes {
+    children: std::vec::Vec<Lifetime>,
 }
-enum TypedParameterChild {
-    DictionarySplatPattern(DictionarySplatPattern),
+enum ScopedTypeIdentifierChild {
+    BracketedType(BracketedType),
+    Crate(Crate),
+    GenericType(GenericType),
     Identifier(Identifier),
-    ListSplatPattern(ListSplatPattern),
+    Metavariable(Metavariable),
+    ScopedIdentifier(ScopedIdentifier),
+    SelfToken(SelfToken),
+    Super(Super),
 }
-struct TypedParameter {}
-enum _CompoundStatement {
-    ClassDefinition(ClassDefinition),
-    DecoratedDefinition(DecoratedDefinition),
-    ForStatement(ForStatement),
-    FunctionDefinition(FunctionDefinition),
-    IfStatement(IfStatement),
-    MatchStatement(MatchStatement),
-    TryStatement(TryStatement),
-    WhileStatement(WhileStatement),
-    WithStatement(WithStatement),
+struct AbstractType {}
+struct SelfParameter {
+    children: std::vec::Vec<SelfParameterChild>,
 }
-struct TypeParameter {
-    children: std::vec::Vec<Type>,
+struct EnumVariant {
+    name: Identifier,
+    value: std::option::Option<_Expression>,
+    body: std::option::Option<EnumVariantbody>,
+    maybe_visibility_modifier: std::option::Option<VisibilityModifier>,
 }
-struct LineContinuation;
-struct GreaterThanSigngreaterThanSignequalsSignToken;
-struct CommaToken;
-enum UnionPatternChild {
-    ClassPattern(ClassPattern),
-    ComplexPattern(ComplexPattern),
-    ConcatenatedString(ConcatenatedString),
-    DictPattern(DictPattern),
-    DottedName(DottedName),
-    False(False),
-    Float(Float),
-    Integer(Integer),
-    ListPattern(ListPattern),
-    None(None),
-    SplatPattern(SplatPattern),
-    String(String),
-    True(True),
-    TuplePattern(TuplePattern),
-    UnionPattern(UnionPattern),
+struct FnToken;
+enum UseBoundsChild { Lifetime(Lifetime), TypeIdentifier(TypeIdentifier), }
+struct StmtToken;
+struct ReturnExpression {
+    maybe__expression: std::option::Option<_Expression>,
 }
-struct UnionPattern {
-    children: std::option::Option<std::vec::Vec<UnionPatternChild>>,
-}
-struct WithStatement {
-    body: Block,
-    with_clause: WithClause,
-}
-struct ReverseSolidusToken;
-struct CircumflexAccentequalsSignToken;
-struct RightParenthesisToken;
-enum ForStatementChild {
-    Expression(Expression),
-    ExpressionList(ExpressionList),
-}
-enum ForStatementChild { Pattern(Pattern), PatternList(PatternList), }
-struct ForStatement {
-    right: ForStatementChild,
-    left: ForStatementChild,
-    alternative: std::option::Option<ElseClause>,
-    body: Block,
-}
-enum SetComprehensionChild { ForInClause(ForInClause), IfClause(IfClause), }
-struct SetComprehension {
-    body: Expression,
-    children: std::vec::Vec<SetComprehensionChild>,
-}
-struct AsteriskasteriskequalsSignToken;
-struct LessThanSignequalsSignToken;
-struct AsyncToken;
-enum KeywordPatternChild {
-    ClassPattern(ClassPattern),
-    ComplexPattern(ComplexPattern),
-    ConcatenatedString(ConcatenatedString),
-    DictPattern(DictPattern),
-    DottedName(DottedName),
-    False(False),
-    Float(Float),
-    Identifier(Identifier),
-    Integer(Integer),
-    ListPattern(ListPattern),
-    None(None),
-    SplatPattern(SplatPattern),
-    String(String),
-    True(True),
-    TuplePattern(TuplePattern),
-    UnionPattern(UnionPattern),
-}
-struct KeywordPattern {
-    children: std::vec::Vec<KeywordPatternChild>,
-}
-struct Comment;
-enum ComplexPatternChild { Float(Float), Integer(Integer), }
-struct ComplexPattern {
-    children: std::vec::Vec<ComplexPatternChild>,
-}
-struct IfClause {
-    expression: Expression,
-}
-struct WhileStatement {
-    alternative: std::option::Option<ElseClause>,
-    body: Block,
-    condition: Expression,
-}
-struct ElifToken;
-struct False;
-struct TypeConversion;
-struct ColonToken;
-enum BinaryOperatorChild {
-    PercentSignToken(PercentSignToken),
-    AmpersandToken(AmpersandToken),
-    AsteriskToken(AsteriskToken),
-    AsteriskasteriskToken(AsteriskasteriskToken),
-    PlusSignToken(PlusSignToken),
-    HyphenMinusToken(HyphenMinusToken),
-    SolidusToken(SolidusToken),
-    SolidussolidusToken(SolidussolidusToken),
-    LessThanSignlessThanSignToken(LessThanSignlessThanSignToken),
-    GreaterThanSigngreaterThanSignToken(GreaterThanSigngreaterThanSignToken),
-    CommercialAtToken(CommercialAtToken),
-    CircumflexAccentToken(CircumflexAccentToken),
-    VerticalLineToken(VerticalLineToken),
-}
-struct BinaryOperator {
-    right: PrimaryExpression,
-    operator: BinaryOperatorChild,
-    left: PrimaryExpression,
-}
-struct Lambda {
-    body: Expression,
-    parameters: std::option::Option<LambdaParameters>,
-}
-enum ListSplatChild {
-    Attribute(Attribute),
-    Expression(Expression),
-    Identifier(Identifier),
-    Subscript(Subscript),
-}
-struct ListSplat {
-    children: ListSplatChild,
-}
-struct MatchStatement {
-    body: Block,
-    subject: std::vec::Vec<Expression>,
-}
-struct GreaterThanSigngreaterThanSignToken;
-struct CircumflexAccentToken;
-struct AssertToken;
-struct Float;
-enum GeneratorExpressionChild {
-    ForInClause(ForInClause),
-    IfClause(IfClause),
-}
-struct GeneratorExpression {
-    body: Expression,
-    children: std::vec::Vec<GeneratorExpressionChild>,
-}
-struct ForToken;
-struct ConcatenatedString {
-    children: std::vec::Vec<String>,
-}
-struct RaiseToken;
-enum CasePatternChild {
-    AsPattern(AsPattern),
-    ClassPattern(ClassPattern),
-    ComplexPattern(ComplexPattern),
-    ConcatenatedString(ConcatenatedString),
-    DictPattern(DictPattern),
-    DottedName(DottedName),
-    False(False),
-    Float(Float),
-    Integer(Integer),
-    KeywordPattern(KeywordPattern),
-    ListPattern(ListPattern),
-    None(None),
-    SplatPattern(SplatPattern),
-    String(String),
-    True(True),
-    TuplePattern(TuplePattern),
-    UnionPattern(UnionPattern),
-}
-struct CasePattern {
-    children: std::option::Option<CasePatternChild>,
+struct GenBlock {
+    block: Block,
 }
 struct BreakToken;
-struct LeftCurlyBracketToken;
-struct NonlocalStatement {
-    children: std::vec::Vec<Identifier>,
+struct AssociatedType {
+    name: TypeIdentifier,
+    type_parameters: std::option::Option<TypeParameters>,
+    bounds: std::option::Option<TraitBounds>,
+    maybe_where_clause: std::option::Option<WhereClause>,
 }
-struct SolidusToken;
-struct BreakStatement;
-struct CaseClause {
-    guard: std::option::Option<IfClause>,
-    consequence: Block,
-    children: std::vec::Vec<CasePattern>,
+struct TryExpression {
+    _expression: _Expression,
 }
-enum ListComprehensionChild { ForInClause(ForInClause), IfClause(IfClause), }
-struct ListComprehension {
-    body: Expression,
-    children: std::vec::Vec<ListComprehensionChild>,
-}
-struct WildcardImport;
-enum AugmentedAssignmentChild { Pattern(Pattern), PatternList(PatternList), }
-enum AugmentedAssignmentChild {
-    Assignment(Assignment),
-    AugmentedAssignment(AugmentedAssignment),
-    Expression(Expression),
-    ExpressionList(ExpressionList),
-    PatternList(PatternList),
-    Yield(Yield),
-}
-enum AugmentedAssignmentChild {
+struct EscapeSequence;
+enum CompoundAssignmentExprChild {
     PercentSignequalsSignToken(PercentSignequalsSignToken),
     AmpersandequalsSignToken(AmpersandequalsSignToken),
-    AsteriskasteriskequalsSignToken(AsteriskasteriskequalsSignToken),
     AsteriskequalsSignToken(AsteriskequalsSignToken),
     PlusSignequalsSignToken(PlusSignequalsSignToken),
     HyphenMinusequalsSignToken(HyphenMinusequalsSignToken),
-    SolidussolidusequalsSignToken(SolidussolidusequalsSignToken),
     SolidusequalsSignToken(SolidusequalsSignToken),
     LessThanSignlessThanSignequalsSignToken(LessThanSignlessThanSignequalsSignToken),
     GreaterThanSigngreaterThanSignequalsSignToken(GreaterThanSigngreaterThanSignequalsSignToken),
-    CommercialAtequalsSignToken(CommercialAtequalsSignToken),
     CircumflexAccentequalsSignToken(CircumflexAccentequalsSignToken),
     VerticalLineequalsSignToken(VerticalLineequalsSignToken),
 }
-struct AugmentedAssignment {
-    left: AugmentedAssignmentChild,
-    right: AugmentedAssignmentChild,
-    operator: AugmentedAssignmentChild,
-}
-struct IsSpacEnotToken;
-enum GenericTypeChild {
+struct TokenBindingPattern {}
+struct ColonToken;
+enum FunctionSignatureItemname {
     Identifier(Identifier),
-    TypeParameter(TypeParameter),
+    Metavariable(Metavariable),
 }
-struct GenericType {
-    children: std::vec::Vec<GenericTypeChild>,
-}
-enum InterpolationChild {
-    Expression(Expression),
-    ExpressionList(ExpressionList),
-    PatternList(PatternList),
-    Yield(Yield),
-}
-struct Interpolation {
-    format_specifier: std::option::Option<FormatSpecifier>,
-    expression: InterpolationChild,
-    type_conversion: std::option::Option<TypeConversion>,
-}
-struct AsteriskToken;
-struct KeywordArgument {
-    name: Identifier,
-    value: Expression,
-}
-struct PlusSignequalsSignToken;
-struct StringStart;
-struct PlusSignToken;
-struct PercentSignToken;
-struct ElseToken;
-enum Expression {
-    AsPattern(AsPattern),
-    BooleanOperator(BooleanOperator),
-    ComparisonOperator(ComparisonOperator),
-    ConditionalExpression(ConditionalExpression),
-    Lambda(Lambda),
-    NamedExpression(NamedExpression),
-    NotOperator(NotOperator),
-    PrimaryExpression(PrimaryExpression),
-}
-struct NotOperator {
-    argument: Expression,
-}
-enum DictPatternChild {
-    HyphenMinusToken(HyphenMinusToken),
-    _Token(_Token),
-    ClassPattern(ClassPattern),
-    ComplexPattern(ComplexPattern),
-    ConcatenatedString(ConcatenatedString),
-    DictPattern(DictPattern),
-    DottedName(DottedName),
-    False(False),
-    Float(Float),
-    Integer(Integer),
-    ListPattern(ListPattern),
-    None(None),
-    SplatPattern(SplatPattern),
-    String(String),
-    True(True),
-    TuplePattern(TuplePattern),
-    UnionPattern(UnionPattern),
-}
-struct DictPattern {
-    value: std::option::Option<std::vec::Vec<CasePattern>>,
-    key: std::option::Option<std::vec::Vec<DictPatternChild>>,
-    children: std::option::Option<std::vec::Vec<SplatPattern>>,
-}
-enum ParenthesizedListSplatChild {
-    ListSplat(ListSplat),
-    ParenthesizedExpression(ParenthesizedExpression),
-}
-struct ParenthesizedListSplat {
-    children: ParenthesizedListSplatChild,
-}
-struct DefToken;
-enum ListChild {
-    Expression(Expression),
-    ListSplat(ListSplat),
-    ParenthesizedListSplat(ParenthesizedListSplat),
-    Yield(Yield),
-}
-struct List {
-    children: std::option::Option<std::vec::Vec<ListChild>>,
-}
-struct NotToken;
-struct TypeAliasStatement {
-    right: Type,
-    left: Type,
-}
-struct WithToken;
-enum BooleanOperatorChild { AndToken(AndToken), OrToken(OrToken), }
-struct BooleanOperator {
-    operator: BooleanOperatorChild,
-    left: Expression,
-    right: Expression,
-}
-struct AliasedImport {
-    alias: Identifier,
-    name: DottedName,
-}
-struct GlobalToken;
-struct RightCurlyBracketToken;
-struct ImportToken;
-struct ContinueToken;
-enum TypeChild {
-    ConstrainedType(ConstrainedType),
-    Expression(Expression),
+enum DynamicTypeChild {
+    FunctionType(FunctionType),
     GenericType(GenericType),
-    MemberType(MemberType),
-    SplatType(SplatType),
-    UnionType(UnionType),
+    HigherRankedTraitBound(HigherRankedTraitBound),
+    ScopedTypeIdentifier(ScopedTypeIdentifier),
+    TupleType(TupleType),
+    TypeIdentifier(TypeIdentifier),
 }
-struct Type {
-    children: TypeChild,
+struct InnerAttributeItem {
+    attribute: Attribute,
 }
-struct WithClause {
-    children: std::vec::Vec<WithItem>,
-}
-enum TryStatementChild {
-    ElseClause(ElseClause),
-    ExceptClause(ExceptClause),
-    FinallyClause(FinallyClause),
-}
-struct TryStatement {
-    body: Block,
-    children: std::option::Option<std::vec::Vec<TryStatementChild>>,
-}
-struct HyphenMinusequalsSignToken;
-struct EscapeSequence;
-struct MatchToken;
-struct YieldToken;
-struct HyphenMinusgreaterThanSignToken;
-enum DictionaryComprehensionChild {
-    ForInClause(ForInClause),
-    IfClause(IfClause),
-}
-struct DictionaryComprehension {
-    body: Pair,
-    children: std::vec::Vec<DictionaryComprehensionChild>,
-}
-enum ExpressionStatementChild {
-    Assignment(Assignment),
-    AugmentedAssignment(AugmentedAssignment),
-    Expression(Expression),
-    Yield(Yield),
-}
-struct ExpressionStatement {
-    children: std::vec::Vec<ExpressionStatementChild>,
-}
-struct GreaterThanSignToken;
-struct EscapeInterpolation;
-enum _SimpleStatement {
-    AssertStatement(AssertStatement),
-    BreakStatement(BreakStatement),
-    ContinueStatement(ContinueStatement),
-    DeleteStatement(DeleteStatement),
-    ExecStatement(ExecStatement),
+enum SourceFileChild {
+    _DeclarationStatement(_DeclarationStatement),
     ExpressionStatement(ExpressionStatement),
-    FutureImportStatement(FutureImportStatement),
-    GlobalStatement(GlobalStatement),
-    ImportFromStatement(ImportFromStatement),
-    ImportStatement(ImportStatement),
-    NonlocalStatement(NonlocalStatement),
-    PassStatement(PassStatement),
-    PrintStatement(PrintStatement),
-    RaiseStatement(RaiseStatement),
-    ReturnStatement(ReturnStatement),
-    TypeAliasStatement(TypeAliasStatement),
+    Shebang(Shebang),
 }
-struct ClassDefinition {
-    name: Identifier,
-    body: Block,
-    superclasses: std::option::Option<ArgumentList>,
-    type_parameters: std::option::Option<TypeParameter>,
-}
-struct Chevron {
-    expression: Expression,
-}
-enum ImportFromStatementChild {
-    AliasedImport(AliasedImport),
-    DottedName(DottedName),
-}
-enum ImportFromStatementChild {
-    DottedName(DottedName),
-    RelativeImport(RelativeImport),
-}
-struct ImportFromStatement {
-    name: std::option::Option<std::vec::Vec<ImportFromStatementChild>>,
-    module_name: ImportFromStatementChild,
-    maybe_wildcard_import: std::option::Option<WildcardImport>,
-}
-struct WithItem {
-    value: Expression,
-}
-struct ImportPrefix;
-enum DefaultParameterChild {
-    Identifier(Identifier),
-    TuplePattern(TuplePattern),
-}
-struct DefaultParameter {
-    name: DefaultParameterChild,
-    value: Expression,
-}
-struct _FutureToken;
-struct FunctionDefinition {
-    name: Identifier,
-    parameters: Parameters,
-    body: Block,
-    return_type: std::option::Option<Type>,
-    type_parameters: std::option::Option<TypeParameter>,
-}
-enum ArgumentListChild {
-    DictionarySplat(DictionarySplat),
-    Expression(Expression),
-    KeywordArgument(KeywordArgument),
-    ListSplat(ListSplat),
-    ParenthesizedExpression(ParenthesizedExpression),
-}
-struct ArgumentList {
-    children: std::option::Option<std::vec::Vec<ArgumentListChild>>,
-}
-struct DelToken;
-struct KeywordSeparator;
-struct Slice {
-    children: std::option::Option<std::vec::Vec<Expression>>,
-}
-enum CallChild {
-    ArgumentList(ArgumentList),
-    GeneratorExpression(GeneratorExpression),
-}
-struct Call {
-    arguments: CallChild,
-    function: PrimaryExpression,
-}
-struct GlobalStatement {
-    children: std::vec::Vec<Identifier>,
-}
-struct LessThanSignToken;
-struct InToken;
-struct Await {
-    primary_expression: PrimaryExpression,
-}
-enum StringChild {
-    Interpolation(Interpolation),
-    StringContent(StringContent),
-    StringEnd(StringEnd),
-    StringStart(StringStart),
-}
-struct String {
-    children: std::vec::Vec<StringChild>,
-}
-struct LambdaToken;
-struct ExpressionList {
-    children: std::vec::Vec<Expression>,
-}
-struct SplatPattern {
-    maybe_identifier: std::option::Option<Identifier>,
-}
-struct PercentSignequalsSignToken;
-struct AssertStatement {
-    children: std::vec::Vec<Expression>,
-}
-struct NonlocalToken;
-struct OrToken;
-struct FinallyClause {
-    block: Block,
-}
-struct Attribute {
-    attribute: Identifier,
-    object: PrimaryExpression,
-}
-enum MemberTypeChild { Identifier(Identifier), Type(Type), }
-struct MemberType {
-    children: std::vec::Vec<MemberTypeChild>,
-}
-struct SolidussolidusToken;
-struct EqualsSignToken;
-struct ExceptClause {
-    alias: std::option::Option<Expression>,
-    value: std::option::Option<std::vec::Vec<Expression>>,
-    block: Block,
-}
-struct GreaterThanSignequalsSignToken;
-enum UnaryOperatorChild {
-    PlusSignToken(PlusSignToken),
-    HyphenMinusToken(HyphenMinusToken),
-    TildeToken(TildeToken),
-}
-struct UnaryOperator {
-    operator: UnaryOperatorChild,
-    argument: PrimaryExpression,
-}
-enum BlockChild {
-    _CompoundStatement(_CompoundStatement),
-    _SimpleStatement(_SimpleStatement),
-}
+struct AsterisksolidusToken;
+struct LiteralToken;
 struct Block {
-    alternative: std::option::Option<std::vec::Vec<CaseClause>>,
     children: std::option::Option<std::vec::Vec<BlockChild>>,
 }
-struct IfToken;
+enum EnumVariantbody {
+    FieldDeclarationList(FieldDeclarationList),
+    OrderedFieldDeclarationList(OrderedFieldDeclarationList),
+}
+struct FieldInitializer {
+    value: _Expression,
+    field: FieldInitializerfield,
+    children: std::option::Option<std::vec::Vec<AttributeItem>>,
+}
+struct ExternCrateDeclaration {
+    name: Identifier,
+    alias: std::option::Option<Identifier>,
+    children: std::vec::Vec<ExternCrateDeclarationChild>,
+}
+struct PatToken;
+enum FunctionTypeChild {
+    ForLifetimes(ForLifetimes),
+    FunctionModifiers(FunctionModifiers),
+}
+struct UseBounds {
+    children: std::option::Option<std::vec::Vec<UseBoundsChild>>,
+}
+struct SolidusToken;
+struct MatchBlock {
+    children: std::option::Option<std::vec::Vec<MatchArm>>,
+}
+struct TypeIdentifier;
+struct ApostropheToken;
+struct VisToken;
+struct ElseToken;
+enum EnumItemChild {
+    VisibilityModifier(VisibilityModifier),
+    WhereClause(WhereClause),
+}
+struct TypeParameter {
+    bounds: std::option::Option<TraitBounds>,
+    default_type: std::option::Option<_Type>,
+    name: TypeIdentifier,
+}
+enum TokenRepetitionPatternChild {
+    _Literal(_Literal),
+    Crate(Crate),
+    Identifier(Identifier),
+    Metavariable(Metavariable),
+    MutableSpecifier(MutableSpecifier),
+    PrimitiveType(PrimitiveType),
+    SelfToken(SelfToken),
+    Super(Super),
+    TokenBindingPattern(TokenBindingPattern),
+    TokenRepetitionPattern(TokenRepetitionPattern),
+    TokenTreePattern(TokenTreePattern),
+}
+struct FieldInitializerList {
+    children: std::option::Option<std::vec::Vec<FieldInitializerListChild>>,
+}
+struct EnumToken;
+struct ForToken;
+struct AsteriskequalsSignToken;
+struct MatchExpression {
+    value: _Expression,
+    body: MatchBlock,
+}
+struct ContinueExpression {
+    maybe_label: std::option::Option<Label>,
+}
+struct UnsafeBlock {
+    block: Block,
+}
+struct BracketedType {
+    children: BracketedTypeChild,
+}
+enum ReferencePatternChild {
+    _Pattern(_Pattern),
+    MutableSpecifier(MutableSpecifier),
+}
+struct ImplToken;
+struct CommercialAtToken;
+struct LetChain {
+    children: std::vec::Vec<LetChainChild>,
+}
+enum StructItembody {
+    FieldDeclarationList(FieldDeclarationList),
+    OrderedFieldDeclarationList(OrderedFieldDeclarationList),
+}
+struct AsteriskToken;
+enum TraitBoundsChild {
+    _Type(_Type),
+    HigherRankedTraitBound(HigherRankedTraitBound),
+    Lifetime(Lifetime),
+}
+struct BooleanLiteral;
+struct IntegerLiteral;
+enum TokenTreeChild {
+    _Literal(_Literal),
+    Crate(Crate),
+    Identifier(Identifier),
+    Metavariable(Metavariable),
+    MutableSpecifier(MutableSpecifier),
+    PrimitiveType(PrimitiveType),
+    SelfToken(SelfToken),
+    Super(Super),
+    TokenRepetition(TokenRepetition),
+    TokenTree(TokenTree),
+}
+struct LetToken;
+struct UseToken;
+struct TyToken;
+enum FieldPatternname {
+    FieldIdentifier(FieldIdentifier),
+    ShorthandFieldIdentifier(ShorthandFieldIdentifier),
+}
+struct OrPattern {
+    children: std::vec::Vec<_Pattern>,
+}
+struct ParenthesizedExpression {
+    _expression: _Expression,
+}
+struct UseAsClause {
+    path: UseAsClauseChild,
+    alias: Identifier,
+}
+struct QuotationMarkToken;
+struct AmpersandequalsSignToken;
+struct ReferencePattern {
+    children: std::vec::Vec<ReferencePatternChild>,
+}
+struct FieldPattern {
+    name: FieldPatternname,
+    pattern: std::option::Option<_Pattern>,
+    maybe_mutable_specifier: std::option::Option<MutableSpecifier>,
+}
+struct RefPattern {
+    _pattern: _Pattern,
+}
 struct TypeToken;
-enum DictionaryChild { DictionarySplat(DictionarySplat), Pair(Pair), }
-struct Dictionary {
-    children: std::option::Option<std::vec::Vec<DictionaryChild>>,
+struct SourceFile {
+    children: std::option::Option<std::vec::Vec<SourceFileChild>>,
 }
-struct PositionalSeparator;
-enum SetChild {
-    Expression(Expression),
-    ListSplat(ListSplat),
-    ParenthesizedListSplat(ParenthesizedListSplat),
-    Yield(Yield),
+enum TypeParametersChild {
+    AttributeItem(AttributeItem),
+    ConstParameter(ConstParameter),
+    LifetimeParameter(LifetimeParameter),
+    Metavariable(Metavariable),
+    TypeParameter(TypeParameter),
 }
-struct Set {
-    children: std::vec::Vec<SetChild>,
+struct WhileToken;
+struct GenericPattern {
+    type_arguments: TypeArguments,
+    children: GenericPatternChild,
 }
-enum TuplePatternChild { CasePattern(CasePattern), Pattern(Pattern), }
+struct LoopExpression {
+    body: Block,
+    maybe_label: std::option::Option<Label>,
+}
+struct TryToken;
+struct RemainingFieldPattern;
+enum ExternCrateDeclarationChild {
+    Crate(Crate),
+    VisibilityModifier(VisibilityModifier),
+}
+struct RightParenthesisToken;
+struct IfToken;
+struct LoopToken;
+struct AwaitToken;
+struct ScopedIdentifier {
+    name: ScopedIdentifierChild,
+    path: std::option::Option<ScopedIdentifierChild>,
+}
+struct ConstItem {
+    name: Identifier,
+    value: std::option::Option<_Expression>,
+}
 struct TuplePattern {
     children: std::option::Option<std::vec::Vec<TuplePatternChild>>,
 }
-struct ClassToken;
-struct TypedDefaultParameter {}
-struct LeftSquareBracketToken;
-struct TryToken;
-enum DeleteStatementChild {
-    Expression(Expression),
-    ExpressionList(ExpressionList),
+struct ExpressionStatement {
+    _expression: _Expression,
 }
-struct DeleteStatement {
-    children: DeleteStatementChild,
+struct CircumflexAccentequalsSignToken;
+struct TraitItem {
+    body: DeclarationList,
+    type_parameters: std::option::Option<TypeParameters>,
+    bounds: std::option::Option<TraitBounds>,
+    name: TypeIdentifier,
+    children: std::option::Option<std::vec::Vec<TraitItemChild>>,
 }
-struct AsToken;
-struct PassToken;
-enum ListSplatPatternChild {
-    Attribute(Attribute),
+enum UseListChild {
+    Crate(Crate),
     Identifier(Identifier),
-    Subscript(Subscript),
+    Metavariable(Metavariable),
+    ScopedIdentifier(ScopedIdentifier),
+    ScopedUseList(ScopedUseList),
+    SelfToken(SelfToken),
+    Super(Super),
+    UseAsClause(UseAsClause),
+    UseList(UseList),
+    UseWildcard(UseWildcard),
 }
-struct ListSplatPattern {
-    children: ListSplatPatternChild,
+struct Shebang;
+struct StructExpression {
+    body: FieldInitializerList,
+    name: StructExpressionChild,
 }
-enum StringContentChild {
-    EscapeInterpolation(EscapeInterpolation),
+struct RawStringLiteral {
+    string_content: StringContent,
+}
+struct SolidusequalsSignToken;
+enum ScopedUseListChild {
+    Crate(Crate),
+    Identifier(Identifier),
+    Metavariable(Metavariable),
+    ScopedIdentifier(ScopedIdentifier),
+    SelfToken(SelfToken),
+    Super(Super),
+}
+struct ReferenceExpression {
+    value: _Expression,
+    maybe_mutable_specifier: std::option::Option<MutableSpecifier>,
+}
+struct TypeParameters {
+    children: std::vec::Vec<TypeParametersChild>,
+}
+struct FieldDeclaration {}
+struct GreaterThanSigngreaterThanSignequalsSignToken;
+enum SelfParameterChild {
+    Lifetime(Lifetime),
+    MutableSpecifier(MutableSpecifier),
+    SelfToken(SelfToken),
+}
+enum LetChainChild { _Expression(_Expression), LetCondition(LetCondition), }
+struct BinaryExpression {
+    left: _Expression,
+    operator: BinaryExpressionChild,
+    right: _Expression,
+}
+struct ClosureParameters {
+    children: std::option::Option<std::vec::Vec<ClosureParametersChild>>,
+}
+struct DeclarationList {
+    children: std::option::Option<std::vec::Vec<_DeclarationStatement>>,
+}
+struct ColoncolonToken;
+struct ExclamationMarkequalsSignToken;
+struct ExclamationMarkToken;
+struct FullStopfullStopequalsSignToken;
+enum _Type {
+    AbstractType(AbstractType),
+    ArrayType(ArrayType),
+    BoundedType(BoundedType),
+    DynamicType(DynamicType),
+    FunctionType(FunctionType),
+    GenericType(GenericType),
+    MacroInvocation(MacroInvocation),
+    Metavariable(Metavariable),
+    NeverType(NeverType),
+    PointerType(PointerType),
+    PrimitiveType(PrimitiveType),
+    ReferenceType(ReferenceType),
+    RemovedTraitBound(RemovedTraitBound),
+    ScopedTypeIdentifier(ScopedTypeIdentifier),
+    TupleType(TupleType),
+    TypeIdentifier(TypeIdentifier),
+    UnitType(UnitType),
+}
+struct PercentSignequalsSignToken;
+struct ContinueToken;
+enum BlockChild {
+    _DeclarationStatement(_DeclarationStatement),
+    _Expression(_Expression),
+    ExpressionStatement(ExpressionStatement),
+    Label(Label),
+}
+struct UnaryExpression {
+    _expression: _Expression,
+}
+enum StructPatternChild {
+    FieldPattern(FieldPattern),
+    RemainingFieldPattern(RemainingFieldPattern),
+}
+enum GenericTypeWithTurbofishChild {
+    ScopedIdentifier(ScopedIdentifier),
+    TypeIdentifier(TypeIdentifier),
+}
+struct PlusSignequalsSignToken;
+struct PointerType {}
+struct DollarSignToken;
+enum GenericFunctionChild {
+    FieldExpression(FieldExpression),
+    Identifier(Identifier),
+    ScopedIdentifier(ScopedIdentifier),
+}
+struct UseWildcard {
+    children: std::option::Option<UseWildcardChild>,
+}
+struct MetaToken;
+struct WhereToken;
+struct UnsafeToken;
+enum TokenTreePatternChild {
+    _Literal(_Literal),
+    Crate(Crate),
+    Identifier(Identifier),
+    Metavariable(Metavariable),
+    MutableSpecifier(MutableSpecifier),
+    PrimitiveType(PrimitiveType),
+    SelfToken(SelfToken),
+    Super(Super),
+    TokenBindingPattern(TokenBindingPattern),
+    TokenRepetitionPattern(TokenRepetitionPattern),
+    TokenTreePattern(TokenTreePattern),
+}
+struct PathToken;
+struct MutPattern {
+    children: std::vec::Vec<MutPatternChild>,
+}
+enum StringLiteralChild {
     EscapeSequence(EscapeSequence),
+    StringContent(StringContent),
 }
-struct StringContent {
-    children: std::option::Option<std::vec::Vec<StringContentChild>>,
+enum WhileExpressioncondition {
+    _Expression(_Expression),
+    LetChain(LetChain),
+    LetCondition(LetCondition),
 }
-struct PassStatement;
-struct CommercialAtToken;
-struct SplatType {
+struct BlockToken;
+struct EmptyStatement;
+struct GenericType {
+    type_arguments: TypeArguments,
+}
+struct Lifetime {
     identifier: Identifier,
 }
-struct PatternList {
-    children: std::vec::Vec<Pattern>,
+struct RightCurlyBracketToken;
+struct StructItem {
+    name: TypeIdentifier,
+    type_parameters: std::option::Option<TypeParameters>,
+    body: std::option::Option<StructItembody>,
+    children: std::option::Option<std::vec::Vec<StructItemChild>>,
 }
-enum SubscriptChild { Expression(Expression), Slice(Slice), }
-struct Subscript {
-    subscript: std::vec::Vec<SubscriptChild>,
-    value: PrimaryExpression,
-}
-struct Ellipsis;
-enum ImportStatementChild {
-    AliasedImport(AliasedImport),
-    DottedName(DottedName),
-}
-struct ImportStatement {
-    name: std::vec::Vec<ImportStatementChild>,
-}
-struct True;
-enum AsPatternChild {
-    CasePattern(CasePattern),
-    Expression(Expression),
+enum CallExpressionChild {
+    _Literal(_Literal),
+    ArrayExpression(ArrayExpression),
+    AssignmentExpression(AssignmentExpression),
+    AsyncBlock(AsyncBlock),
+    AwaitExpression(AwaitExpression),
+    BinaryExpression(BinaryExpression),
+    Block(Block),
+    BreakExpression(BreakExpression),
+    CallExpression(CallExpression),
+    ClosureExpression(ClosureExpression),
+    CompoundAssignmentExpr(CompoundAssignmentExpr),
+    ConstBlock(ConstBlock),
+    ContinueExpression(ContinueExpression),
+    FieldExpression(FieldExpression),
+    ForExpression(ForExpression),
+    GenBlock(GenBlock),
+    GenericFunction(GenericFunction),
     Identifier(Identifier),
+    IfExpression(IfExpression),
+    IndexExpression(IndexExpression),
+    LoopExpression(LoopExpression),
+    MacroInvocation(MacroInvocation),
+    MatchExpression(MatchExpression),
+    Metavariable(Metavariable),
+    ParenthesizedExpression(ParenthesizedExpression),
+    ReferenceExpression(ReferenceExpression),
+    ReturnExpression(ReturnExpression),
+    ScopedIdentifier(ScopedIdentifier),
+    SelfToken(SelfToken),
+    StructExpression(StructExpression),
+    TryBlock(TryBlock),
+    TryExpression(TryExpression),
+    TupleExpression(TupleExpression),
+    TypeCastExpression(TypeCastExpression),
+    UnaryExpression(UnaryExpression),
+    UnitExpression(UnitExpression),
+    UnsafeBlock(UnsafeBlock),
+    WhileExpression(WhileExpression),
+    YieldExpression(YieldExpression),
 }
-struct AsPattern {
-    alias: std::option::Option<AsPatternTarget>,
-    children: std::vec::Vec<AsPatternChild>,
+struct FunctionItem {
+    type_parameters: std::option::Option<TypeParameters>,
+    parameters: Parameters,
+    body: Block,
+    name: FunctionItemname,
+    return_type: std::option::Option<_Type>,
+    children: std::option::Option<std::vec::Vec<FunctionItemChild>>,
 }
-enum FormatExpressionChild {
-    Expression(Expression),
-    ExpressionList(ExpressionList),
-    PatternList(PatternList),
-    Yield(Yield),
+enum TypeItemChild {
+    VisibilityModifier(VisibilityModifier),
+    WhereClause(WhereClause),
 }
-struct FormatExpression {
-    format_specifier: std::option::Option<FormatSpecifier>,
-    type_conversion: std::option::Option<TypeConversion>,
-    expression: FormatExpressionChild,
+enum _Expression {
+    _Literal(_Literal),
+    ArrayExpression(ArrayExpression),
+    AssignmentExpression(AssignmentExpression),
+    AsyncBlock(AsyncBlock),
+    AwaitExpression(AwaitExpression),
+    BinaryExpression(BinaryExpression),
+    Block(Block),
+    BreakExpression(BreakExpression),
+    CallExpression(CallExpression),
+    ClosureExpression(ClosureExpression),
+    CompoundAssignmentExpr(CompoundAssignmentExpr),
+    ConstBlock(ConstBlock),
+    ContinueExpression(ContinueExpression),
+    FieldExpression(FieldExpression),
+    ForExpression(ForExpression),
+    GenBlock(GenBlock),
+    GenericFunction(GenericFunction),
+    Identifier(Identifier),
+    IfExpression(IfExpression),
+    IndexExpression(IndexExpression),
+    LoopExpression(LoopExpression),
+    MacroInvocation(MacroInvocation),
+    MatchExpression(MatchExpression),
+    Metavariable(Metavariable),
+    ParenthesizedExpression(ParenthesizedExpression),
+    RangeExpression(RangeExpression),
+    ReferenceExpression(ReferenceExpression),
+    ReturnExpression(ReturnExpression),
+    ScopedIdentifier(ScopedIdentifier),
+    SelfToken(SelfToken),
+    StructExpression(StructExpression),
+    TryBlock(TryBlock),
+    TryExpression(TryExpression),
+    TupleExpression(TupleExpression),
+    TypeCastExpression(TypeCastExpression),
+    UnaryExpression(UnaryExpression),
+    UnitExpression(UnitExpression),
+    UnsafeBlock(UnsafeBlock),
+    WhileExpression(WhileExpression),
+    YieldExpression(YieldExpression),
 }
-enum ReturnStatementChild {
-    Expression(Expression),
-    ExpressionList(ExpressionList),
+struct AmpersandampersandToken;
+struct FunctionModifiers {
+    children: std::option::Option<std::vec::Vec<ExternModifier>>,
 }
-struct ReturnStatement {
-    children: std::option::Option<ReturnStatementChild>,
+struct BoundedType {
+    children: std::vec::Vec<BoundedTypeChild>,
 }
-enum ComparisonOperatorChild {
+struct IdentToken;
+struct TupleExpression {
+    children: std::vec::Vec<TupleExpressionChild>,
+}
+struct CompoundAssignmentExpr {
+    right: _Expression,
+    left: _Expression,
+    operator: CompoundAssignmentExprChild,
+}
+struct BlockComment {
+    inner: std::option::Option<InnerDocCommentMarker>,
+    doc: std::option::Option<DocComment>,
+    outer: std::option::Option<OuterDocCommentMarker>,
+}
+enum AttributeChild {
+    Crate(Crate),
+    Identifier(Identifier),
+    Metavariable(Metavariable),
+    ScopedIdentifier(ScopedIdentifier),
+    SelfToken(SelfToken),
+    Super(Super),
+}
+struct SelfToken;
+struct MacroRule {
+    left: TokenTreePattern,
+    right: TokenTree,
+}
+struct SlicePattern {
+    children: std::option::Option<std::vec::Vec<_Pattern>>,
+}
+struct FullStopToken;
+struct RawToken;
+enum GenericPatternChild {
+    Identifier(Identifier),
+    ScopedIdentifier(ScopedIdentifier),
+}
+struct UnionItem {
+    body: FieldDeclarationList,
+    name: TypeIdentifier,
+    type_parameters: std::option::Option<TypeParameters>,
+    children: std::option::Option<std::vec::Vec<UnionItemChild>>,
+}
+enum VisibilityModifierChild {
+    Crate(Crate),
+    Identifier(Identifier),
+    Metavariable(Metavariable),
+    ScopedIdentifier(ScopedIdentifier),
+    SelfToken(SelfToken),
+    Super(Super),
+}
+struct WhereClause {
+    children: std::option::Option<std::vec::Vec<WherePredicate>>,
+}
+struct FalseToken;
+struct ExternToken;
+struct UnionToken;
+struct AsToken;
+struct SolidussolidusToken;
+struct MatchToken;
+struct CallExpression {
+    function: CallExpressionChild,
+    arguments: Arguments,
+}
+struct VerticalLineverticalLineToken;
+struct VerticalLineToken;
+struct UseList {
+    children: std::option::Option<std::vec::Vec<UseListChild>>,
+}
+struct ForExpression {
+    value: _Expression,
+    body: Block,
+    pattern: _Pattern,
+    maybe_label: std::option::Option<Label>,
+}
+struct VariadicParameter {
+    pattern: std::option::Option<_Pattern>,
+    maybe_mutable_specifier: std::option::Option<MutableSpecifier>,
+}
+enum _Pattern {
+    _Token(_Token),
+    _LiteralPattern(_LiteralPattern),
+    CapturedPattern(CapturedPattern),
+    ConstBlock(ConstBlock),
+    GenericPattern(GenericPattern),
+    Identifier(Identifier),
+    MacroInvocation(MacroInvocation),
+    MutPattern(MutPattern),
+    OrPattern(OrPattern),
+    RangePattern(RangePattern),
+    RefPattern(RefPattern),
+    ReferencePattern(ReferencePattern),
+    RemainingFieldPattern(RemainingFieldPattern),
+    ScopedIdentifier(ScopedIdentifier),
+    SlicePattern(SlicePattern),
+    StructPattern(StructPattern),
+    TuplePattern(TuplePattern),
+    TupleStructPattern(TupleStructPattern),
+}
+enum StructPatterntype {
+    ScopedTypeIdentifier(ScopedTypeIdentifier),
+    TypeIdentifier(TypeIdentifier),
+}
+struct TrueToken;
+enum IfExpressionChild {
+    _Expression(_Expression),
+    LetChain(LetChain),
+    LetCondition(LetCondition),
+}
+struct ForeignModItem {
+    body: std::option::Option<DeclarationList>,
+    extern_modifier: ExternModifier,
+}
+struct LeftCurlyBracketToken;
+struct MacroInvocation {}
+struct ExternModifier {
+    maybe_string_literal: std::option::Option<StringLiteral>,
+}
+struct ReturnToken;
+struct CapturedPattern {
+    children: std::vec::Vec<_Pattern>,
+}
+struct FieldDeclarationList {
+    children: std::option::Option<std::vec::Vec<FieldDeclarationListChild>>,
+}
+enum ClosureExpressionChild { _Token(_Token), _Expression(_Expression), }
+enum ParametersChild {
+    _Type(_Type),
+    AttributeItem(AttributeItem),
+    Parameter(Parameter),
+    SelfParameter(SelfParameter),
+    VariadicParameter(VariadicParameter),
+}
+struct Expr2021Token;
+struct CommaToken;
+struct Metavariable;
+struct GenToken;
+struct MutableSpecifier;
+struct AssignmentExpression {
+    left: _Expression,
+    right: _Expression,
+}
+struct SemicolonToken;
+struct HyphenMinusequalsSignToken;
+struct ScopedTypeIdentifier {
+    name: TypeIdentifier,
+    path: std::option::Option<ScopedTypeIdentifierChild>,
+}
+struct IfExpression {
+    condition: IfExpressionChild,
+    alternative: std::option::Option<ElseClause>,
+    consequence: Block,
+}
+struct FunctionSignatureItem {
+    name: FunctionSignatureItemname,
+    return_type: std::option::Option<_Type>,
+    type_parameters: std::option::Option<TypeParameters>,
+    parameters: Parameters,
+    children: std::option::Option<std::vec::Vec<FunctionSignatureItemChild>>,
+}
+struct AwaitExpression {
+    _expression: _Expression,
+}
+enum FunctionItemname { Identifier(Identifier), Metavariable(Metavariable), }
+struct UnitExpression;
+struct PlusSignToken;
+enum FieldExpressionChild {
+    FieldIdentifier(FieldIdentifier),
+    IntegerLiteral(IntegerLiteral),
+}
+enum BracketedTypeChild { _Type(_Type), QualifiedType(QualifiedType), }
+struct TypeItem {
+    type_parameters: std::option::Option<TypeParameters>,
+    name: TypeIdentifier,
+}
+enum FieldInitializerListChild {
+    BaseFieldInitializer(BaseFieldInitializer),
+    FieldInitializer(FieldInitializer),
+    ShorthandFieldInitializer(ShorthandFieldInitializer),
+}
+struct ReferenceType {}
+struct MatchArm {
+    pattern: MatchPattern,
+    value: _Expression,
+    children: std::option::Option<std::vec::Vec<MatchArmChild>>,
+}
+enum ArrayExpressionChild {
+    _Expression(_Expression),
+    AttributeItem(AttributeItem),
+}
+struct TokenRepetition {
+    children: std::option::Option<std::vec::Vec<TokenRepetitionChild>>,
+}
+struct Super;
+struct GreaterThanSigngreaterThanSignToken;
+struct FunctionType {
+    parameters: Parameters,
+    return_type: std::option::Option<_Type>,
+}
+struct VerticalLineequalsSignToken;
+enum UseWildcardChild {
+    Crate(Crate),
+    Identifier(Identifier),
+    Metavariable(Metavariable),
+    ScopedIdentifier(ScopedIdentifier),
+    SelfToken(SelfToken),
+    Super(Super),
+}
+struct HigherRankedTraitBound {}
+enum ClosureParametersChild { _Pattern(_Pattern), Parameter(Parameter), }
+struct EnumItem {
+    name: TypeIdentifier,
+    type_parameters: std::option::Option<TypeParameters>,
+    body: EnumVariantList,
+    children: std::option::Option<std::vec::Vec<EnumItemChild>>,
+}
+struct FloatLiteral;
+struct Label {
+    identifier: Identifier,
+}
+struct TokenRepetitionPattern {
+    children: std::option::Option<std::vec::Vec<TokenRepetitionPatternChild>>,
+}
+struct OrderedFieldDeclarationList {}
+struct NumberSignToken;
+struct BreakExpression {
+    children: std::option::Option<std::vec::Vec<BreakExpressionChild>>,
+}
+enum UseDeclarationargument {
+    Crate(Crate),
+    Identifier(Identifier),
+    Metavariable(Metavariable),
+    ScopedIdentifier(ScopedIdentifier),
+    ScopedUseList(ScopedUseList),
+    SelfToken(SelfToken),
+    Super(Super),
+    UseAsClause(UseAsClause),
+    UseList(UseList),
+    UseWildcard(UseWildcard),
+}
+enum TupleExpressionChild {
+    _Expression(_Expression),
+    AttributeItem(AttributeItem),
+}
+enum StructExpressionChild {
+    GenericTypeWithTurbofish(GenericTypeWithTurbofish),
+    ScopedTypeIdentifier(ScopedTypeIdentifier),
+    TypeIdentifier(TypeIdentifier),
+}
+enum ScopedIdentifierChild { Identifier(Identifier), Super(Super), }
+struct _Token;
+enum EnumVariantListChild {
+    AttributeItem(AttributeItem),
+    EnumVariant(EnumVariant),
+}
+struct QualifiedType {}
+enum MatchArmChild {
+    AttributeItem(AttributeItem),
+    InnerAttributeItem(InnerAttributeItem),
+}
+struct ClosureExpression {
+    parameters: ClosureParameters,
+    return_type: std::option::Option<_Type>,
+    body: ClosureExpressionChild,
+}
+enum GenericTypeChild {
+    Identifier(Identifier),
+    ScopedIdentifier(ScopedIdentifier),
+    ScopedTypeIdentifier(ScopedTypeIdentifier),
+    TypeIdentifier(TypeIdentifier),
+}
+struct Parameters {
+    children: std::option::Option<std::vec::Vec<ParametersChild>>,
+}
+struct AttributeItem {
+    attribute: Attribute,
+}
+struct RemovedTraitBound {
+    _type: _Type,
+}
+enum TraitItemChild {
+    VisibilityModifier(VisibilityModifier),
+    WhereClause(WhereClause),
+}
+struct LineComment {
+    outer: std::option::Option<OuterDocCommentMarker>,
+    doc: std::option::Option<DocComment>,
+    inner: std::option::Option<InnerDocCommentMarker>,
+}
+enum BinaryExpressionChild {
     ExclamationMarkequalsSignToken(ExclamationMarkequalsSignToken),
+    PercentSignToken(PercentSignToken),
+    AmpersandToken(AmpersandToken),
+    AmpersandampersandToken(AmpersandampersandToken),
+    AsteriskToken(AsteriskToken),
+    PlusSignToken(PlusSignToken),
+    HyphenMinusToken(HyphenMinusToken),
+    SolidusToken(SolidusToken),
     LessThanSignToken(LessThanSignToken),
+    LessThanSignlessThanSignToken(LessThanSignlessThanSignToken),
     LessThanSignequalsSignToken(LessThanSignequalsSignToken),
-    LessThanSigngreaterThanSignToken(LessThanSigngreaterThanSignToken),
     EqualsSignequalsSignToken(EqualsSignequalsSignToken),
     GreaterThanSignToken(GreaterThanSignToken),
     GreaterThanSignequalsSignToken(GreaterThanSignequalsSignToken),
-    InToken(InToken),
-    IsToken(IsToken),
-    IsSpacEnotToken(IsSpacEnotToken),
-    NotSpacEinToken(NotSpacEinToken),
+    GreaterThanSigngreaterThanSignToken(GreaterThanSigngreaterThanSignToken),
+    CircumflexAccentToken(CircumflexAccentToken),
+    VerticalLineToken(VerticalLineToken),
+    VerticalLineverticalLineToken(VerticalLineverticalLineToken),
 }
-struct ComparisonOperator {
-    operators: std::vec::Vec<ComparisonOperatorChild>,
-    children: std::vec::Vec<PrimaryExpression>,
+struct MatchPattern {
+    condition: std::option::Option<MatchPatterncondition>,
+    _pattern: _Pattern,
 }
-struct AmpersandequalsSignToken;
-struct SolidusequalsSignToken;
-struct ElseClause {
-    body: Block,
+enum _Literal {
+    BooleanLiteral(BooleanLiteral),
+    CharLiteral(CharLiteral),
+    FloatLiteral(FloatLiteral),
+    IntegerLiteral(IntegerLiteral),
+    RawStringLiteral(RawStringLiteral),
+    StringLiteral(StringLiteral),
 }
-struct NotSpacEinToken;
-enum ModuleChild {
-    _CompoundStatement(_CompoundStatement),
-    _SimpleStatement(_SimpleStatement),
-}
-struct Module {
-    children: std::option::Option<std::vec::Vec<ModuleChild>>,
-}
-struct Pair {
-    value: Expression,
-    key: Expression,
-}
-struct SemicolonToken;
-struct RightSquareBracketToken;
-struct ReturnToken;
-struct AwaitToken;
-enum DictionarySplatPatternChild {
-    Attribute(Attribute),
-    Identifier(Identifier),
-    Subscript(Subscript),
-}
-struct DictionarySplatPattern {
-    children: DictionarySplatPatternChild,
-}
-enum IfStatementChild { ElifClause(ElifClause), ElseClause(ElseClause), }
-struct IfStatement {
-    condition: Expression,
-    consequence: Block,
-    alternative: std::option::Option<std::vec::Vec<IfStatementChild>>,
-}
-struct ColonequalsSignToken;
-struct ConstrainedType {
-    children: std::vec::Vec<Type>,
-}
-enum TupleChild {
-    Expression(Expression),
-    ListSplat(ListSplat),
-    ParenthesizedListSplat(ParenthesizedListSplat),
-    Yield(Yield),
-}
-struct Tuple {
-    children: std::option::Option<std::vec::Vec<TupleChild>>,
-}
-struct LeftParenthesisToken;
-struct FromToken;
-struct Integer;
-struct CommercialAtequalsSignToken;
-struct LessThanSignlessThanSignToken;
-struct VerticalLineToken;
-struct EqualsSignequalsSignToken;
-struct ContinueStatement;
-struct UnionType {
-    children: std::vec::Vec<Type>,
-}
-enum DecoratedDefinitionChild {
-    ClassDefinition(ClassDefinition),
-    FunctionDefinition(FunctionDefinition),
-}
-struct DecoratedDefinition {
-    definition: DecoratedDefinitionChild,
-    children: std::vec::Vec<Decorator>,
+struct OuterDocCommentMarker;
+struct TraitBounds {
+    children: std::vec::Vec<TraitBoundsChild>,
 }
 struct AmpersandToken;
-struct AsteriskequalsSignToken;
-struct FullStopToken;
-struct LessThanSignlessThanSignequalsSignToken;
-enum ClassPatternChild { CasePattern(CasePattern), DottedName(DottedName), }
-struct ClassPattern {
-    children: std::vec::Vec<ClassPatternChild>,
+struct CircumflexAccentToken;
+struct ModItem {
+    name: Identifier,
+    body: std::option::Option<DeclarationList>,
+    maybe_visibility_modifier: std::option::Option<VisibilityModifier>,
 }
-struct None;
-struct FormatSpecifier {
-    children: std::option::Option<std::vec::Vec<FormatExpression>>,
+enum ImplItemtrait {
+    GenericType(GenericType),
+    ScopedTypeIdentifier(ScopedTypeIdentifier),
+    TypeIdentifier(TypeIdentifier),
 }
-struct CaseToken;
-struct AsteriskasteriskToken;
-struct IsToken;
-enum Parameter {
-    DefaultParameter(DefaultParameter),
-    DictionarySplatPattern(DictionarySplatPattern),
-    Identifier(Identifier),
-    KeywordSeparator(KeywordSeparator),
-    ListSplatPattern(ListSplatPattern),
-    PositionalSeparator(PositionalSeparator),
-    TuplePattern(TuplePattern),
-    TypedDefaultParameter(TypedDefaultParameter),
-    TypedParameter(TypedParameter),
-}
-struct ExceptToken;
-struct FinallyToken;
 struct Identifier;
-struct StringEnd;
-struct PrintStatement {
-    argument: std::option::Option<std::vec::Vec<Expression>>,
-    maybe_chevron: std::option::Option<Chevron>,
+enum _DeclarationStatement {
+    AssociatedType(AssociatedType),
+    AttributeItem(AttributeItem),
+    ConstItem(ConstItem),
+    EmptyStatement(EmptyStatement),
+    EnumItem(EnumItem),
+    ExternCrateDeclaration(ExternCrateDeclaration),
+    ForeignModItem(ForeignModItem),
+    FunctionItem(FunctionItem),
+    FunctionSignatureItem(FunctionSignatureItem),
+    ImplItem(ImplItem),
+    InnerAttributeItem(InnerAttributeItem),
+    LetDeclaration(LetDeclaration),
+    MacroDefinition(MacroDefinition),
+    MacroInvocation(MacroInvocation),
+    ModItem(ModItem),
+    StaticItem(StaticItem),
+    StructItem(StructItem),
+    TraitItem(TraitItem),
+    TypeItem(TypeItem),
+    UnionItem(UnionItem),
+    UseDeclaration(UseDeclaration),
 }
-enum ExecStatementChild { Identifier(Identifier), String(String), }
-struct ExecStatement {
-    code: ExecStatementChild,
-    children: std::option::Option<std::vec::Vec<Expression>>,
+struct StructToken;
+enum WherePredicateChild {
+    ArrayType(ArrayType),
+    GenericType(GenericType),
+    HigherRankedTraitBound(HigherRankedTraitBound),
+    Lifetime(Lifetime),
+    PointerType(PointerType),
+    PrimitiveType(PrimitiveType),
+    ReferenceType(ReferenceType),
+    ScopedTypeIdentifier(ScopedTypeIdentifier),
+    TupleType(TupleType),
+    TypeIdentifier(TypeIdentifier),
 }
-struct LessThanSigngreaterThanSignToken;
-enum ForInClauseChild { Pattern(Pattern), PatternList(PatternList), }
-enum ForInClauseChild { CommaToken(CommaToken), Expression(Expression), }
-struct ForInClause {
-    left: ForInClauseChild,
-    right: std::vec::Vec<ForInClauseChild>,
+struct EqualsSignequalsSignToken;
+struct NegativeLiteral {
+    children: NegativeLiteralChild,
 }
-struct ConditionalExpression {
-    children: std::vec::Vec<Expression>,
+struct Crate;
+enum BreakExpressionChild { _Expression(_Expression), Label(Label), }
+struct GenericTypeWithTurbofish {}
+struct ArrayExpression {
+    length: std::option::Option<_Expression>,
+    children: std::option::Option<std::vec::Vec<ArrayExpressionChild>>,
 }
-enum FutureImportStatementChild {
-    AliasedImport(AliasedImport),
-    DottedName(DottedName),
+enum ElseClauseChild { Block(Block), IfExpression(IfExpression), }
+struct HyphenMinusgreaterThanSignToken;
+struct GenericFunction {
+    function: GenericFunctionChild,
+    type_arguments: TypeArguments,
 }
-struct FutureImportStatement {
-    name: std::vec::Vec<FutureImportStatementChild>,
+struct AsyncToken;
+struct ArrayType {
+    element: _Type,
+    length: std::option::Option<_Expression>,
 }
-enum PrimaryExpression {
-    Attribute(Attribute),
-    Await(Await),
-    BinaryOperator(BinaryOperator),
-    Call(Call),
-    ConcatenatedString(ConcatenatedString),
-    Dictionary(Dictionary),
-    DictionaryComprehension(DictionaryComprehension),
-    Ellipsis(Ellipsis),
-    False(False),
-    Float(Float),
-    GeneratorExpression(GeneratorExpression),
+struct FragmentSpecifier;
+enum TupleStructPatterntype {
+    GenericType(GenericType),
     Identifier(Identifier),
-    Integer(Integer),
-    List(List),
-    ListComprehension(ListComprehension),
-    ListSplat(ListSplat),
-    None(None),
-    ParenthesizedExpression(ParenthesizedExpression),
-    Set(Set),
-    SetComprehension(SetComprehension),
-    String(String),
-    Subscript(Subscript),
-    True(True),
-    Tuple(Tuple),
-    UnaryOperator(UnaryOperator),
+    ScopedIdentifier(ScopedIdentifier),
 }
-struct PrintToken;
-enum RaiseStatementChild {
-    Expression(Expression),
-    ExpressionList(ExpressionList),
+struct AsyncBlock {
+    block: Block,
 }
-struct RaiseStatement {
-    cause: std::option::Option<Expression>,
-    children: std::option::Option<RaiseStatementChild>,
-}
-struct AndToken;
-struct ElifClause {
-    consequence: Block,
-    condition: Expression,
-}
-enum AssignmentChild {
-    Assignment(Assignment),
-    AugmentedAssignment(AugmentedAssignment),
-    Expression(Expression),
-    ExpressionList(ExpressionList),
-    PatternList(PatternList),
-    Yield(Yield),
-}
-enum AssignmentChild { Pattern(Pattern), PatternList(PatternList), }
-struct Assignment {
-    right: std::option::Option<AssignmentChild>,
-    left: AssignmentChild,
-}
-enum RelativeImportChild {
-    DottedName(DottedName),
-    ImportPrefix(ImportPrefix),
-}
-struct RelativeImport {
-    children: std::vec::Vec<RelativeImportChild>,
-}
-enum Pattern {
-    Attribute(Attribute),
+enum UseAsClauseChild {
+    Crate(Crate),
     Identifier(Identifier),
-    ListPattern(ListPattern),
-    ListSplatPattern(ListSplatPattern),
-    Subscript(Subscript),
-    TuplePattern(TuplePattern),
+    Metavariable(Metavariable),
+    ScopedIdentifier(ScopedIdentifier),
+    SelfToken(SelfToken),
+    Super(Super),
 }
-struct DottedName {
-    children: std::vec::Vec<Identifier>,
+enum RangePatternChild {
+    _LiteralPattern(_LiteralPattern),
+    Crate(Crate),
+    Identifier(Identifier),
+    Metavariable(Metavariable),
+    ScopedIdentifier(ScopedIdentifier),
+    SelfToken(SelfToken),
+    Super(Super),
 }
-struct LambdaParameters {
-    children: std::vec::Vec<Parameter>,
+struct TokenTreePattern {
+    children: std::option::Option<std::vec::Vec<TokenTreePatternChild>>,
 }
-struct Parameters {
-    children: std::option::Option<std::vec::Vec<Parameter>>,
+struct TupleType {
+    children: std::vec::Vec<_Type>,
 }
-enum YieldChild { Expression(Expression), ExpressionList(ExpressionList), }
-struct Yield {
-    children: std::option::Option<YieldChild>,
+struct SolidusasteriskToken;
+struct Parameter {
+    pattern: Parameterpattern,
 }
-struct _Token;
+enum FieldInitializerfield {
+    FieldIdentifier(FieldIdentifier),
+    IntegerLiteral(IntegerLiteral),
+}
+struct LetCondition {
+    value: _Expression,
+    pattern: _Pattern,
+}
+enum ReferenceTypeChild {
+    Lifetime(Lifetime),
+    MutableSpecifier(MutableSpecifier),
+}
+enum FieldDeclarationListChild {
+    AttributeItem(AttributeItem),
+    FieldDeclaration(FieldDeclaration),
+}
+struct PercentSignToken;
+enum BoundedTypeChild {
+    _Type(_Type),
+    Lifetime(Lifetime),
+    UseBounds(UseBounds),
+}
+struct LetDeclaration {
+    pattern: _Pattern,
+    alternative: std::option::Option<Block>,
+}
+struct TraitToken;
+struct ConstParameter {}
+enum OrderedFieldDeclarationListChild {
+    AttributeItem(AttributeItem),
+    VisibilityModifier(VisibilityModifier),
+}
+struct ExprToken;
+struct TryBlock {
+    block: Block,
+}
+struct ElseClause {
+    children: ElseClauseChild,
+}
+struct Attribute {
+    arguments: std::option::Option<TokenTree>,
+    value: std::option::Option<_Expression>,
+    children: AttributeChild,
+}
+struct MacroRulesExclamationMarkToken;
+struct ShorthandFieldInitializer {
+    children: std::vec::Vec<ShorthandFieldInitializerChild>,
+}
+struct DynToken;
+enum NegativeLiteralChild {
+    FloatLiteral(FloatLiteral),
+    IntegerLiteral(IntegerLiteral),
+}
+struct RefToken;
+struct LifetimeToken;
+struct ModToken;
+struct GreaterThanSignequalsSignToken;
+struct EnumVariantList {
+    children: std::option::Option<std::vec::Vec<EnumVariantListChild>>,
+}
+struct StructPattern {}
+struct DefaultToken;
+enum AbstractTypetrait {
+    BoundedType(BoundedType),
+    FunctionType(FunctionType),
+    GenericType(GenericType),
+    RemovedTraitBound(RemovedTraitBound),
+    ScopedTypeIdentifier(ScopedTypeIdentifier),
+    TupleType(TupleType),
+    TypeIdentifier(TypeIdentifier),
+}
+enum StaticItemChild {
+    MutableSpecifier(MutableSpecifier),
+    VisibilityModifier(VisibilityModifier),
+}
+enum ShorthandFieldInitializerChild {
+    AttributeItem(AttributeItem),
+    Identifier(Identifier),
+}
+struct YieldExpression {
+    maybe__expression: std::option::Option<_Expression>,
+}
+enum ScopedIdentifierChild {
+    BracketedType(BracketedType),
+    Crate(Crate),
+    GenericType(GenericType),
+    Identifier(Identifier),
+    Metavariable(Metavariable),
+    ScopedIdentifier(ScopedIdentifier),
+    SelfToken(SelfToken),
+    Super(Super),
+}
+struct RangeExpression {
+    children: std::option::Option<std::vec::Vec<_Expression>>,
+}
+struct TypeBinding {
+    name: TypeIdentifier,
+    type_arguments: std::option::Option<TypeArguments>,
+}
+struct LessThanSignToken;
+struct VisibilityModifier {
+    children: std::option::Option<VisibilityModifierChild>,
+}
+struct CharLiteral;
+enum TuplePatternChild {
+    _Pattern(_Pattern),
+    ClosureExpression(ClosureExpression),
+}
+struct FullStopfullStopToken;
+struct TypeArguments {
+    children: std::vec::Vec<TypeArgumentsChild>,
+}
+struct StaticToken;
+struct ItemToken;
+struct FullStopfullStopfullStopToken;
+struct IndexExpression {
+    children: std::vec::Vec<_Expression>,
+}
+enum ArgumentsChild {
+    _Expression(_Expression),
+    AttributeItem(AttributeItem),
+}
+struct PatParamToken;
+struct TypeCastExpression {
+    value: _Expression,
+}
+enum _LiteralPattern {
+    BooleanLiteral(BooleanLiteral),
+    CharLiteral(CharLiteral),
+    FloatLiteral(FloatLiteral),
+    IntegerLiteral(IntegerLiteral),
+    NegativeLiteral(NegativeLiteral),
+    RawStringLiteral(RawStringLiteral),
+    StringLiteral(StringLiteral),
+}
+struct EqualsSignToken;
+struct MoveToken;
+enum TypeArgumentsChild {
+    _Literal(_Literal),
+    _Type(_Type),
+    Block(Block),
+    Lifetime(Lifetime),
+    TraitBounds(TraitBounds),
+    TypeBinding(TypeBinding),
+}
+struct ScopedUseList {
+    list: UseList,
+    path: std::option::Option<ScopedUseListChild>,
+}
+struct QuestionMarkToken;
+struct ConstToken;
+struct StringLiteral {
+    children: std::option::Option<std::vec::Vec<StringLiteralChild>>,
+}
+enum FunctionSignatureItemChild {
+    FunctionModifiers(FunctionModifiers),
+    VisibilityModifier(VisibilityModifier),
+    WhereClause(WhereClause),
+}
+enum Parameterpattern { _Pattern(_Pattern), SelfToken(SelfToken), }
+struct LessThanSignequalsSignToken;
+struct DocComment;
+struct WhileExpression {
+    body: Block,
+    condition: WhileExpressioncondition,
+    maybe_label: std::option::Option<Label>,
+}
+struct PrimitiveType;
+struct InToken;
+struct FieldIdentifier;
+struct StringContent;
+struct FieldExpression {
+    field: FieldExpressionChild,
+    value: _Expression,
+}
+enum FunctionTypetrait {
+    ScopedTypeIdentifier(ScopedTypeIdentifier),
+    TypeIdentifier(TypeIdentifier),
+}
+struct YieldToken;
+enum MutPatternChild {
+    _Pattern(_Pattern),
+    MutableSpecifier(MutableSpecifier),
+}
+struct EqualsSigngreaterThanSignToken;
+struct PubToken;
+struct LifetimeParameter {
+    name: Lifetime,
+    bounds: std::option::Option<TraitBounds>,
+}
+struct RangePattern {
+    right: std::option::Option<RangePatternChild>,
+    left: std::option::Option<RangePatternChild>,
+}
+struct ShorthandFieldIdentifier;
+struct Arguments {
+    children: std::option::Option<std::vec::Vec<ArgumentsChild>>,
+}
+struct LessThanSignlessThanSignequalsSignToken;
+struct GreaterThanSignToken;
+struct LeftParenthesisToken;
+struct BaseFieldInitializer {
+    _expression: _Expression,
+}
+struct InnerDocCommentMarker;
+enum ConstParameterChild {
+    _Literal(_Literal),
+    Block(Block),
+    Identifier(Identifier),
+    NegativeLiteral(NegativeLiteral),
+}
+enum TokenRepetitionChild {
+    _Literal(_Literal),
+    Crate(Crate),
+    Identifier(Identifier),
+    Metavariable(Metavariable),
+    MutableSpecifier(MutableSpecifier),
+    PrimitiveType(PrimitiveType),
+    SelfToken(SelfToken),
+    Super(Super),
+    TokenRepetition(TokenRepetition),
+    TokenTree(TokenTree),
+}
+struct ConstBlock {
+    body: Block,
+}
+struct UseDeclaration {
+    argument: UseDeclarationargument,
+    maybe_visibility_modifier: std::option::Option<VisibilityModifier>,
+}
+struct HyphenMinusToken;
+struct LessThanSignlessThanSignToken;
+struct StaticItem {}
+struct WherePredicate {
+    bounds: TraitBounds,
+    left: WherePredicateChild,
+}
+enum MacroInvocationmacro {
+    Identifier(Identifier),
+    ScopedIdentifier(ScopedIdentifier),
+}
+struct TtToken;
 
 
